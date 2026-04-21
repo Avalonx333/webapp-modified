@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrati</title>
+    <link rel="stylesheet" href="style.css" />
+     <script src="https://kit.fontawesome.com/12df662af6.js" crossorigin="anonymous"></script>
+</head>
+
+<body id="registrati">
+    <img src="./img/TripMood.png" id="logo">
+    <div class="card">
+        <div class="header">
+            <h1>Registrati</h1>
+        </div>
+        <p class="subtitle">Inserisci le tue credenziali per continuare</p>
+
+        <div class="fields">
+
+            <div class="field">
+                <label for="text">username</label>
+                <input type="text" id="text" placeholder="TripLover1460" />
+            </div>
+
+            <div class="field">
+                <label for="email">Indirizzo Gmail</label>
+                <input type="email" id="email" placeholder="esempio@gmail.com" />
+            </div>
+
+            <div class="field">
+                <label for="pwd">Password</label>
+                <div class="input-wrap">
+                    <input type="password" id="pwd" placeholder="••••••••" />
+                    <button class="toggle-btn" type="button"></button>
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="pwd2">Conferma password</label>
+                <div class="input-wrap">
+                    <input type="password" id="pwd2" placeholder="••••••••" />
+                    <button class="toggle-btn" type="button">
+                    </button>
+                </div>
+                <p id="match-msg" class="match-msg" style="color:transparent">ok</p>
+            </div>
+
+            <button class="btn-submit" type="button">Accedi</button>
+        </div>
+    </div>
+    <footer>
+        <div id="contact" >
+            <h4>Contatti</h4>
+            <p>Telefono: 123-456-7890</p>
+            <p>Email: email.esempio@gmail.com</p>
+        </div>
+        <div id="social" >
+            <h4>Seguici su</h4>
+            <a href="#"><i class="fa-brands fa-facebook"></i></a>
+            <a href="#"><i class="fa-brands fa-twitter"></i></a>
+            <a href="#"><i class="fa-brands fa-instagram"></i></a>
+        </div>
+    </footer>
+  <script src="script.js"></script>
+</body>
+
+</html>
