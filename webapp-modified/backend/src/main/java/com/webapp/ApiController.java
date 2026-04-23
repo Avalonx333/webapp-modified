@@ -1,35 +1,60 @@
 package com.webapp;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.Map;
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api")
-public class ApiController  {
+@CrossOrigin(origins = "*")
+public class ApiController {
 
-    @GetMapping("/hello")
-    public String hello() {
-        return "Ciao dal backend Java!";
-    }
-
-    @PostMapping("/data")
-    public String receiveData(@RequestBody String data) {
-        return "Ricevuto: " + data;
-    }
+    @Autowired
+    private AuthService service;
 
     @PostMapping("/registra")
-    public Map<String, String> registra(@RequestBody Map<String, String> body) {
-        String username = body.getOrDefault("username", "");
-        String email    = body.getOrDefault("email", "");
-        String password = body.getOrDefault("password", "");
+    public ResponseEntity<?> registra(@RequestBody Utente u) {
 
-        if (username.isBlank() || email.isBlank() || password.isBlank()) {
-            return Map.of("status", "errore", "messaggio", "Campi mancanti");
+        if (service.usernameEsiste(u.getUsername())) {
+            return ResponseEntity.status(409).body(Map.of(
+                    "status", "errore",
+                    "messaggio", "Username già esistente"
+            ));
         }
 
-        // TODO: salva nel database
-        System.out.println("Nuovo utente: " + username + " - " + email);
-        return Map.of("status", "ok", "messaggio", "Registrazione avvenuta con successo!");
+        if (service.emailEsiste(u.getEmail())) {
+            return ResponseEntity.status(409).body(Map.of(
+                    "status", "errore",
+                    "messaggio", "Email già esistente"
+            ));
+        }
+
+        service.registra(u);
+
+        return ResponseEntity.ok(Map.of(
+                "status", "ok",
+                "messaggio", "Registrazione avvenuta con successo!"
+        ));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Utente u) {
+
+        Utente trovato = service.login(u.getUsername(), u.getPassword());
+
+        if (trovato == null) {
+            return ResponseEntity.status(401).body(Map.of(
+                    "status", "errore",
+                    "messaggio", "Credenziali errate"
+            ));
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "status", "ok",
+                "messaggio", "Login riuscito!",
+                "utente", trovato
+        ));
     }
 }

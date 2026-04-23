@@ -34,6 +34,34 @@ async function apiPost(endpoint, body) {
   return res.json();
 }
 
+async function registrati() {
+    const username = document.getElementById('reg-username').value;
+    const password = document.getElementById('reg-password').value;
+    const msg = document.getElementById('reg-messaggio');
+
+    if (!username || !password) {
+        msg.textContent = "Compila tutti i campi.";
+        msg.style.color = "red";
+        return;
+    }
+
+    try {
+        const res = await fetch('http://localhost:8080/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json();
+        msg.textContent = data.messaggio;
+        msg.style.color = res.ok ? "green" : "red";
+    } catch (err) {
+        msg.textContent = "Errore di connessione al server.";
+        msg.style.color = "red";
+    }
+}
+
+
 document.addEventListener("DOMContentLoaded", () => {
 
   // =====================
