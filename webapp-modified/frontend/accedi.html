@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrati</title>
+    <title>Accedi</title>
     <link rel="stylesheet" href="style.css" />
     <script src="https://kit.fontawesome.com/12df662af6.js" crossorigin="anonymous"></script>
 </head>
 
-<body id="registrati">
+<body id="accedi">
 <img src="./img/TripMood.png" id="logo">
 
 <nav id="cs-nav">
@@ -18,19 +18,14 @@
 
 <div class="card">
     <div class="header">
-        <h1>Registrati</h1>
+        <h1>Accedi</h1>
     </div>
     <p class="subtitle">Inserisci le tue credenziali per continuare</p>
 
     <div class="fields">
 
         <div class="field">
-            <label for="text">username</label>
-            <input type="text" id="text" placeholder="TripLover1460" />
-        </div>
-
-        <div class="field">
-            <label for="email">Indirizzo Gmail</label>
+            <label for="email">Indirizzo Email</label>
             <input type="email" id="email" placeholder="esempio@gmail.com" />
         </div>
 
@@ -42,19 +37,9 @@
             </div>
         </div>
 
-        <div class="field">
-            <label for="pwd2">Conferma password</label>
-            <div class="input-wrap">
-                <input type="password" id="pwd2" placeholder="••••••••" />
-                <button class="toggle-btn" type="button">
-                </button>
-            </div>
-            <p id="match-msg" class="match-msg" style="color:transparent">ok</p>
-        </div>
+        <p class="login-link">Non hai un account? <a href="Registrati.html">Registrati</a></p>
 
-        <p class="login-link">Hai un account? <a href="accedi.html">Accedi</a></p>
-
-        <button class="btn-submit" type="button">Registrati</button>
+        <button class="btn-submit" id="btn-accedi" type="button">Accedi</button>
     </div>
 </div>
 <script src="script.js"></script>

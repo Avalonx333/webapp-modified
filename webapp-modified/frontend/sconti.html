@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sconti</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://kit.fontawesome.com/12df662af6.js" crossorigin="anonymous"></script>
+</head>
+
+<body id="viaggi">
+<img src="./img/TripMood.png" id="logo">
+<nav id="cs-nav">
+    <a href="index.html">Home</a>
+    <a href="viaggi.html">← I Viaggi</a>
+</nav>
+
+<main id="viaggi-main">
+    <h1 id="viaggi-title"><i class="fa-solid fa-tag"></i> Sconti</h1>
+
+    <div id="viaggi-grid">
+        <div class="viaggi-row">
+            <div class="subpage-card wide-card sconto-hero">
+                <div class="subpage-card-icon"><i class="fa-solid fa-bolt"></i></div>
+                <h2 class="subpage-card-title">Offerta Flash</h2>
+                <p class="sconto-desc">Prenota entro oggi e risparmia il <strong>30%</strong> su tutti i viaggi di
+                    gruppo!</p>
+                <div class="countdown" id="countdown">⏱ Scade in: <strong id="timer">23:59:59</strong></div>
+            </div>
+            <div class="subpage-card wide-card">
+                <div class="subpage-card-icon"><i class="fa-solid fa-ticket"></i></div>
+                <h2 class="subpage-card-title">Codice sconto</h2>
+                <p class="sconto-desc">Hai un codice promozionale? Inseriscilo qui.</p>
+                <div class="codice-row">
+                    <input type="text" id="codice-sconto" placeholder="es. TRIP2025"
+                           class="subpage-input codice-input" />
+                    <button class="btn-submit btn-codice" onclick="applicaCodice()">Applica</button>
+                </div>
+                <p id="codice-msg" class="match-msg"></p>
+            </div>
+        </div>
+
+        <div class="viaggi-row">
+            <div class="subpage-card sconto-card">
+                <div class="sconto-badge">−20%</div>
+                <div class="subpage-card-icon">🏝</div>
+                <h2 class="subpage-card-title">Maldive</h2>
+                <p class="sconto-originale">€ 2.490</p>
+                <p class="sconto-nuovo">€ 1.992</p>
+                <p class="sconto-scadenza"><i class="fa-regular fa-calendar-xmark"></i> Scade il 30 Apr 2025</p>
+            </div>
+
+            <div class="subpage-card sconto-card">
+                <div class="sconto-badge">−15%</div>
+                <div class="subpage-card-icon">🗼</div>
+                <h2 class="subpage-card-title">Tokyo</h2>
+                <p class="sconto-originale">€ 1.890</p>
+                <p class="sconto-nuovo">€ 1.607</p>
+                <p class="sconto-scadenza"><i class="fa-regular fa-calendar-xmark"></i> Scade il 15 Mag 2025</p>
+            </div>
+
+            <div class="subpage-card sconto-card">
+                <div class="sconto-badge">−25%</div>
+                <div class="subpage-card-icon">🌿</div>
+                <h2 class="subpage-card-title">Costa Rica</h2>
+                <p class="sconto-originale">€ 1.650</p>
+                <p class="sconto-nuovo">€ 1.237</p>
+                <p class="sconto-scadenza"><i class="fa-regular fa-calendar-xmark"></i> Scade il 1 Giu 2025</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prenota un viaggio</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://kit.fontawesome.com/12df662af6.js" crossorigin="anonymous"></script>
+</head>
+
+<body id="viaggi">
+<img src="./img/TripMood.png" id="logo">
+<nav id="cs-nav">
+    <a href="index.html">Home</a>
+    <a href="viaggi.html">← I Viaggi</a>
+</nav>
+
+<main id="viaggi-main">
+    <h1 id="viaggi-title"><i class="fa-solid fa-plane-departure"></i> Prenota un viaggio</h1>
+
+    <div id="viaggi-grid">
+        <div class="viaggi-row">
+            <div class="subpage-card wide-card">
+                <div class="subpage-card-icon"><i class="fa-solid fa-magnifying-glass-location"></i></div>
+                <h2 class="subpage-card-title">Destinazione</h2>
+                <input type="text" id="destinazione" placeholder="Dove vuoi andare?" class="subpage-input" />
+            </div>
+            <div class="subpage-card wide-card">
+                <div class="subpage-card-icon"><i class="fa-solid fa-calendar-days"></i></div>
+                <h2 class="subpage-card-title">Date</h2>
+                <div class="subpage-date-row">
+                    <div class="subpage-date-field">
+                        <label>Partenza</label>
+                        <input type="date" id="data-partenza" class="subpage-input" />
+                    </div>
+                    <div class="subpage-date-field">
+                        <label>Ritorno</label>
+                        <input type="date" id="data-ritorno" class="subpage-input" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="viaggi-row">
+            <div class="subpage-card">
+                <div class="subpage-card-icon"><i class="fa-solid fa-users"></i></div>
+                <h2 class="subpage-card-title">Passeggeri</h2>
+                <div class="counter-row">
+                    <button class="counter-btn" onclick="changeCount('adulti', -1)">−</button>
+                    <span class="counter-label">Adulti: <strong id="count-adulti">1</strong></span>
+                    <button class="counter-btn" onclick="changeCount('adulti', 1)">+</button>
+                </div>
+                <div class="counter-row">
+                    <button class="counter-btn" onclick="changeCount('bambini', -1)">−</button>
+                    <span class="counter-label">Bambini: <strong id="count-bambini">0</strong></span>
+                    <button class="counter-btn" onclick="changeCount('bambini', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="subpage-card">
+                <div class="subpage-card-icon"><i class="fa-solid fa-suitcase-rolling"></i></div>
+                <h2 class="subpage-card-title">Tipo di viaggio</h2>
+                <div class="tipo-grid">
+                    <label class="tipo-option"><input type="radio" name="tipo" value="mare" checked> 🏖 Mare</label>
+                    <label class="tipo-option"><input type="radio" name="tipo" value="montagna"> 🏔 Montagna</label>
+                    <label class="tipo-option"><input type="radio" name="tipo" value="citta"> 🏙 Città</label>
+                    <label class="tipo-option"><input type="radio" name="tipo" value="avventura"> 🌿
+                        Avventura</label>
+                </div>
+            </div>
+
+            <div class="subpage-card">
+                <div class="subpage-card-icon"><i class="fa-solid fa-star"></i></div>
+                <h2 class="subpage-card-title">Categoria hotel</h2>
+                <div class="stelle-row" id="stelle-selector">
+                    <span class="stella" data-val="1" onclick="selectStelle(1)">★</span>
+                    <span class="stella" data-val="2" onclick="selectStelle(2)">★</span>
+                    <span class="stella" data-val="3" onclick="selectStelle(3)">★</span>
+                    <span class="stella" data-val="4" onclick="selectStelle(4)">★</span>
+                    <span class="stella" data-val="5" onclick="selectStelle(5)">★</span>
+                </div>
+                <p id="stelle-label" class="stelle-label-text">Seleziona le stelle</p>
+            </div>
+        </div>
+    </div>
+
+    <button class="btn-submit btn-prenota" id="btn-prenota" onclick="prenotaViaggio()">
+        <i class="fa-solid fa-paper-plane"></i> Conferma prenotazione
+    </button>
+</main>
+
+<script src="script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I Viaggi</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://kit.fontawesome.com/12df662af6.js" crossorigin="anonymous"></script>
+</head>
+
+<body id="viaggi">
+<img src="./img/TripMood.png" id="logo">
+
+<nav id="cs-nav">
+    <a href="index.html">Home</a>
+</nav>
+
+<main id="viaggi-main">
+    <h1 id="viaggi-title">I Viaggi</h1>
+
+    <div id="viaggi-grid">
+        <div class="viaggi-row">
+            <div class="viaggi-card" onclick="navigateTo('prenota.html')">
+                <i class="fa-solid fa-plane-departure viaggi-icon"></i>
+                <span>Prenota un viaggio</span>
+            </div>
+            <div class="viaggi-card" onclick="navigateTo('storico.html')">
+                <i class="fa-solid fa-clock-rotate-left viaggi-icon"></i>
+                <span>Storico dei viaggi</span>
+            </div>
+        </div>
+
+        <div class="viaggi-row">
+            <div class="viaggi-card" onclick="navigateTo('amati.html')">
+                <i class="fa-solid fa-heart viaggi-icon"></i>
+                <span>Viaggi più amati</span>
+            </div>
+            <div class="viaggi-card" onclick="navigateTo('sconti.html')">
+                <i class="fa-solid fa-tag viaggi-icon"></i>
+                <span>Sconti</span>
+            </div>
+            <div class="viaggi-card" onclick="navigateTo('gruppo.html')">
+                <i class="fa-solid fa-people-group viaggi-icon"></i>
+                <span>Viaggi di gruppo</span>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="script.js"></script>
+</body>
+
+</html>

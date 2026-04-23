@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Viaggi di gruppo</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://kit.fontawesome.com/12df662af6.js" crossorigin="anonymous"></script>
+</head>
+
+<body id="viaggi">
+<img src="./img/TripMood.png" id="logo">
+<nav id="cs-nav">
+  <a href="index.html">Home</a>
+  <a href="viaggi.html">← I Viaggi</a>
+</nav>
+
+<main id="viaggi-main">
+  <h1 id="viaggi-title"><i class="fa-solid fa-people-group"></i> Viaggi di gruppo</h1>
+
+  <div id="viaggi-grid">
+    <div class="viaggi-row">
+      <div class="subpage-card wide-card">
+        <div class="subpage-card-icon"><i class="fa-solid fa-circle-info"></i></div>
+        <h2 class="subpage-card-title">Come funziona</h2>
+        <div class="come-funziona-grid">
+          <div class="cf-step"><span class="cf-num">1</span>
+            <p>Scegli il pacchetto di gruppo</p>
+          </div>
+          <div class="cf-step"><span class="cf-num">2</span>
+            <p>Invita i tuoi compagni di viaggio</p>
+          </div>
+          <div class="cf-step"><span class="cf-num">3</span>
+            <p>Goditi uno sconto automatico dal 10%</p>
+          </div>
+        </div>
+      </div>
+      <div class="subpage-card wide-card">
+        <div class="subpage-card-icon"><i class="fa-solid fa-users-gear"></i></div>
+        <h2 class="subpage-card-title">Dimensione del gruppo</h2>
+        <div class="gruppo-size-grid">
+          <label class="tipo-option"><input type="radio" name="gruppo" value="coppia" checked> 👫 Coppia
+            (2)</label>
+          <label class="tipo-option"><input type="radio" name="gruppo" value="famiglia"> 👨‍👩‍👧 Famiglia
+            (3–5)</label>
+          <label class="tipo-option"><input type="radio" name="gruppo" value="amici"> 🎉 Amici
+            (6–12)</label>
+          <label class="tipo-option"><input type="radio" name="gruppo" value="corporate"> 🏢 Corporate
+            (13+)</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="viaggi-row">
+      <div class="subpage-card gruppo-card">
+        <div class="subpage-card-icon">🏖</div>
+        <h2 class="subpage-card-title">Mare in gruppo</h2>
+        <p class="gruppo-info"><i class="fa-solid fa-users"></i> Min. 6 persone</p>
+        <p class="gruppo-info"><i class="fa-solid fa-calendar-days"></i> 7 – 14 notti</p>
+        <p class="gruppo-info"><i class="fa-solid fa-tag"></i> Sconto 10% sul totale</p>
+        <p class="gruppo-price">da <strong>€ 890</strong> / persona</p>
+      </div>
+
+      <div class="subpage-card gruppo-card">
+        <div class="subpage-card-icon">🏙</div>
+        <h2 class="subpage-card-title">Tour città europee</h2>
+        <p class="gruppo-info"><i class="fa-solid fa-users"></i> Min. 4 persone</p>
+        <p class="gruppo-info"><i class="fa-solid fa-calendar-days"></i> 4 – 7 notti</p>
+        <p class="gruppo-info"><i class="fa-solid fa-tag"></i> Guida inclusa</p>
+        <p class="gruppo-price">da <strong>€ 650</strong> / persona</p>
+      </div>
+
+      <div class="subpage-card gruppo-card">
+        <div class="subpage-card-icon">🌿</div>
+        <h2 class="subpage-card-title">Avventura selvaggia</h2>
+        <p class="gruppo-info"><i class="fa-solid fa-users"></i> Min. 8 persone</p>
+        <p class="gruppo-info"><i class="fa-solid fa-calendar-days"></i> 10 – 21 notti</p>
+        <p class="gruppo-info"><i class="fa-solid fa-tag"></i> Sconto 15% + assicurazione</p>
+        <p class="gruppo-price">da <strong>€ 1.200</strong> / persona</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="script.js"></script>
+</body>
+
+</html>

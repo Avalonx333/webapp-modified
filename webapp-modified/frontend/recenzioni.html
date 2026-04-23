@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recensioni</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://kit.fontawesome.com/12df662af6.js" crossorigin="anonymous"></script>
+</head>
+
+<body id="viaggi">
+<img src="./img/TripMood.png" id="logo">
+<nav id="cs-nav">
+    <a href="index.html">Home</a>
+</nav>
+
+<main id="viaggi-main">
+    <h1 id="viaggi-title"><i class="fa-solid fa-star"></i> Recensioni</h1>
+
+    <div id="viaggi-grid">
+
+        <div class="viaggi-row">
+            <div class="subpage-card wide-card rec-hero">
+                <div class="subpage-card-icon"><i class="fa-solid fa-trophy"></i></div>
+                <h2 class="subpage-card-title">La voce dei nostri viaggiatori</h2>
+                <p class="sconto-desc">Oltre <strong>1.200 recensioni verificate</strong> da clienti reali che hanno vissuto le nostre esperienze di viaggio.</p>
+                <div class="rec-stats-row">
+                    <div class="rec-stat">
+                        <span class="rec-stat-num">4.8</span>
+                        <div class="rec-stars-small">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star-half-stroke"></i>
+                        </div>
+                        <span class="rec-stat-label">Media generale</span>
+                    </div>
+                    <div class="rec-divider"></div>
+                    <div class="rec-bar-group">
+                        <div class="rec-bar-row"><span>5 ★</span><div class="rec-bar"><div class="rec-bar-fill" style="width:72%"></div></div><span>72%</span></div>
+                        <div class="rec-bar-row"><span>4 ★</span><div class="rec-bar"><div class="rec-bar-fill" style="width:18%"></div></div><span>18%</span></div>
+                        <div class="rec-bar-row"><span>3 ★</span><div class="rec-bar"><div class="rec-bar-fill" style="width:6%"></div></div><span>6%</span></div>
+                        <div class="rec-bar-row"><span>2 ★</span><div class="rec-bar"><div class="rec-bar-fill" style="width:3%"></div></div><span>3%</span></div>
+                        <div class="rec-bar-row"><span>1 ★</span><div class="rec-bar"><div class="rec-bar-fill" style="width:1%"></div></div><span>1%</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subpage-card rec-filtro-card">
+                <div class="subpage-card-icon"><i class="fa-solid fa-filter"></i></div>
+                <h2 class="subpage-card-title">Filtra per destinazione</h2>
+                <div class="filtro-anni">
+                    <button class="filtro-btn active" onclick="filtraRec(this, 'tutti')">Tutti</button>
+                    <button class="filtro-btn" onclick="filtraRec(this, 'europa')">Europa</button>
+                    <button class="filtro-btn" onclick="filtraRec(this, 'asia')">Asia</button>
+                    <button class="filtro-btn" onclick="filtraRec(this, 'america')">America</button>
+                    <button class="filtro-btn" onclick="filtraRec(this, 'africa')">Africa</button>
+                    <button class="filtro-btn" onclick="filtraRec(this, 'oceania')">Oceania</button>
+                </div>
+                <h2 class="subpage-card-title" style="margin-top:12px">Filtra per stelle</h2>
+                <div class="filtro-anni">
+                    <button class="filtro-btn active" onclick="filtraStelle(this, 0)">Tutte</button>
+                    <button class="filtro-btn" onclick="filtraStelle(this, 5)">&#x2605;&#x2605;&#x2605;&#x2605;&#x2605;</button>
+                    <button class="filtro-btn" onclick="filtraStelle(this, 4)">&#x2605;&#x2605;&#x2605;&#x2605;</button>
+                    <button class="filtro-btn" onclick="filtraStelle(this, 3)">&#x2605;&#x2605;&#x2605;</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="viaggi-row" id="rec-container">
+
+            <div class="subpage-card rec-card" data-dest="europa" data-stelle="5">
+                <div class="rec-card-header">
+                    <div class="cs-avatar" style="width:48px;height:48px;font-size:20px;flex-shrink:0"><i class="fa-solid fa-person-dress"></i></div>
+                    <div>
+                        <h3 class="rec-nome">Giulia M.</h3>
+                        <p class="rec-dest"><i class="fa-solid fa-location-dot"></i> Barcellona, Spagna</p>
+                    </div>
+                    <div class="rec-stelle">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                    </div>
+                </div>
+                <p class="rec-testo">"Un'esperienza indimenticabile! L'organizzazione era impeccabile e la guida locale ci ha fatto scoprire angoli della città che non avremmo mai trovato da soli. Tornerò sicuramente!"</p>
+                <p class="rec-data"><i class="fa-regular fa-calendar"></i> Marzo 2025</p>
+            </div>
+
+            <div class="subpage-card rec-card" data-dest="asia" data-stelle="5">
+                <div class="rec-card-header">
+                    <div class="cs-avatar" style="width:48px;height:48px;font-size:20px;flex-shrink:0"><i class="fa-solid fa-person"></i></div>
+                    <div>
+                        <h3 class="rec-nome">Marco T.</h3>
+                        <p class="rec-dest"><i class="fa-solid fa-location-dot"></i> Tokyo, Giappone</p>
+                    </div>
+                    <div class="rec-stelle">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                    </div>
+                </div>
+                <p class="rec-testo">"Il Giappone con TripMood è stato magico. Dal tempio Senso-ji al quartiere Shibuya, ogni momento era pianificato alla perfezione. Il servizio clienti è stato disponibile 24/7."</p>
+                <p class="rec-data"><i class="fa-regular fa-calendar"></i> Febbraio 2025</p>
+            </div>
+
+            <div class="subpage-card rec-card" data-dest="america" data-stelle="4">
+                <div class="rec-card-header">
+                    <div class="cs-avatar" style="width:48px;height:48px;font-size:20px;flex-shrink:0"><i class="fa-solid fa-person-dress"></i></div>
+                    <div>
+                        <h3 class="rec-nome">Francesca R.</h3>
+                        <p class="rec-dest"><i class="fa-solid fa-location-dot"></i> New York, USA</p>
+                    </div>
+                    <div class="rec-stelle">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i>
+                    </div>
+                </div>
+                <p class="rec-testo">"New York era sempre stato il mio sogno. TripMood ha reso tutto facile, dai voli all'hotel in posizione centrale. Solo un piccolo ritardo al check-in, ma nulla che abbia rovinato il viaggio."</p>
+                <p class="rec-data"><i class="fa-regular fa-calendar"></i> Gennaio 2025</p>
+            </div>
+
+            <div class="subpage-card rec-card" data-dest="africa" data-stelle="5">
+                <div class="rec-card-header">
+                    <div class="cs-avatar" style="width:48px;height:48px;font-size:20px;flex-shrink:0"><i class="fa-solid fa-person"></i></div>
+                    <div>
+                        <h3 class="rec-nome">Luca B.</h3>
+                        <p class="rec-dest"><i class="fa-solid fa-location-dot"></i> Safari, Kenya</p>
+                    </div>
+                    <div class="rec-stelle">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                    </div>
+                </div>
+                <p class="rec-testo">"Il safari in Kenya ha superato ogni aspettativa. Vedere i Big Five nel loro habitat naturale è qualcosa che non dimenticherò mai. La jeep e la guida erano eccellenti. 10/10!"</p>
+                <p class="rec-data"><i class="fa-regular fa-calendar"></i> Dicembre 2024</p>
+            </div>
+
+            <div class="subpage-card rec-card" data-dest="europa" data-stelle="5">
+                <div class="rec-card-header">
+                    <div class="cs-avatar" style="width:48px;height:48px;font-size:20px;flex-shrink:0"><i class="fa-solid fa-person-dress"></i></div>
+                    <div>
+                        <h3 class="rec-nome">Sofia V.</h3>
+                        <p class="rec-dest"><i class="fa-solid fa-location-dot"></i> Santorini, Grecia</p>
+                    </div>
+                    <div class="rec-stelle">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                    </div>
+                </div>
+                <p class="rec-testo">"Santorini in coppia è stato il viaggio di nozze perfetto. TripMood ha curato ogni dettaglio: dall'hotel con vista sul tramonto alla cena romantica sul mare. Grazie mille!"</p>
+                <p class="rec-data"><i class="fa-regular fa-calendar"></i> Novembre 2024</p>
+            </div>
+
+            <div class="subpage-card rec-card" data-dest="oceania" data-stelle="4">
+                <div class="rec-card-header">
+                    <div class="cs-avatar" style="width:48px;height:48px;font-size:20px;flex-shrink:0"><i class="fa-solid fa-person"></i></div>
+                    <div>
+                        <h3 class="rec-nome">Andrea P.</h3>
+                        <p class="rec-dest"><i class="fa-solid fa-location-dot"></i> Sydney, Australia</p>
+                    </div>
+                    <div class="rec-stelle">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i>
+                    </div>
+                </div>
+                <p class="rec-testo">"Australia è lontanissima ma TripMood ha reso il viaggio semplice e confortevole. Scale con scalo ottimizzato, hotel fantastici. Avrei solo voluto più giorni a Bondi Beach!"</p>
+                <p class="rec-data"><i class="fa-regular fa-calendar"></i> Ottobre 2024</p>
+            </div>
+
+        </div>
+
+        <div class="viaggi-row">
+            <div class="subpage-card wide-card">
+                <div class="subpage-card-icon"><i class="fa-solid fa-pen-to-square"></i></div>
+                <h2 class="subpage-card-title">Scrivi la tua recensione</h2>
+                <p class="sconto-desc">Hai viaggiato con noi? Condividi la tua esperienza!</p>
+                <input type="text" placeholder="Il tuo nome" class="subpage-input" style="width:100%;box-sizing:border-box" />
+                <input type="text" placeholder="Destinazione" class="subpage-input" style="width:100%;box-sizing:border-box;margin-top:8px" />
+                <div class="stelle-row" id="rec-stelle-input" style="margin-top:8px">
+                    <span class="stella" onclick="setStella(1)">&#9733;</span>
+                    <span class="stella" onclick="setStella(2)">&#9733;</span>
+                    <span class="stella" onclick="setStella(3)">&#9733;</span>
+                    <span class="stella" onclick="setStella(4)">&#9733;</span>
+                    <span class="stella" onclick="setStella(5)">&#9733;</span>
+                </div>
+                <textarea placeholder="Racconta la tua esperienza..." class="subpage-input rec-textarea"></textarea>
+                <button class="btn-submit" style="width:100%;margin-top:8px;border-radius:40px" onclick="inviaRecensione()">
+                    <i class="fa-solid fa-paper-plane"></i> Invia Recensione
+                </button>
+                <p id="rec-msg" class="match-msg"></p>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<script src="script.js"></script>
+</body>
+
+</html>

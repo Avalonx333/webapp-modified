@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abbonamenti</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://kit.fontawesome.com/12df662af6.js" crossorigin="anonymous"></script>
+</head>
+
+<body id="viaggi">
+<img src="./img/TripMood.png" id="logo">
+<nav id="cs-nav">
+    <a href="index.html">Home</a>
+</nav>
+
+<main id="viaggi-main">
+    <h1 id="viaggi-title"><i class="fa-solid fa-tag"></i> Abbonamenti</h1>
+
+    <div id="viaggi-grid">
+
+        <div class="viaggi-row">
+            <div class="subpage-card wide-card abbonamento-hero">
+                <div class="subpage-card-icon"><i class="fa-solid fa-crown"></i></div>
+                <h2 class="subpage-card-title">Scegli il tuo piano TripMood</h2>
+                <p class="sconto-desc">Abbonati e accedi a sconti esclusivi, prenotazioni prioritarie e assistenza
+                    dedicata. Più viaggi, più risparmi.</p>
+                <div class="rec-stats-row" style="margin-top: 16px;">
+                    <div class="rec-stat">
+                        <span class="rec-stat-num">3</span>
+                        <span class="rec-stat-label">Piani disponibili</span>
+                    </div>
+                    <div class="rec-divider"></div>
+                    <div class="rec-stat">
+                        <span class="rec-stat-num">−40%</span>
+                        <span class="rec-stat-label">Sconto max abbonati</span>
+                    </div>
+                    <div class="rec-divider"></div>
+                    <div class="rec-stat">
+                        <span class="rec-stat-num">24/7</span>
+                        <span class="rec-stat-label">Assistenza Premium</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subpage-card" style="min-width:200px; justify-content:center; gap:12px;">
+                <div class="subpage-card-icon"><i class="fa-solid fa-calendar-days"></i></div>
+                <h2 class="subpage-card-title">Tipo di fatturazione</h2>
+                <div class="filtro-anni">
+                    <button class="filtro-btn active" id="btn-mensile"
+                            onclick="setFatturazione('mensile', this)">Mensile</button>
+                    <button class="filtro-btn" id="btn-annuale"
+                            onclick="setFatturazione('annuale', this)">Annuale <span
+                            style="color:#e74c3c;font-size:11px;font-weight:bold"> −20%</span></button>
+                </div>
+                <p class="sconto-desc" style="text-align:center; margin-top:8px; font-size:12px; color:#888;">
+                    Con il piano annuale risparmi 2 mesi ogni anno!</p>
+            </div>
+        </div>
+
+        <div class="viaggi-row" id="piani-container">
+
+            <div class="subpage-card piano-card">
+                <div class="subpage-card-icon">🌱</div>
+                <h2 class="subpage-card-title">Base</h2>
+                <p class="piano-prezzo" id="prezzo-base">€ 4,99</p>
+                <p class="piano-periodo">/ mese</p>
+                <ul class="piano-features">
+                    <li><i class="fa-solid fa-check"></i> Accesso ai viaggi standard</li>
+                    <li><i class="fa-solid fa-check"></i> Newsletter mensile offerte</li>
+                    <li><i class="fa-solid fa-check"></i> Sconto 5% sulle prenotazioni</li>
+                    <li class="disabled"><i class="fa-solid fa-xmark"></i> Prenotazione prioritaria</li>
+                    <li class="disabled"><i class="fa-solid fa-xmark"></i> Assistenza dedicata</li>
+                    <li class="disabled"><i class="fa-solid fa-xmark"></i> Viaggi esclusivi</li>
+                </ul>
+                <button class="btn-abbonati" onclick="scegli('Base')">Inizia ora</button>
+            </div>
+
+            <div class="subpage-card piano-card featured">
+                <div class="piano-badge-top">⭐ Più scelto</div>
+                <div class="subpage-card-icon">🚀</div>
+                <h2 class="subpage-card-title">Plus</h2>
+                <p class="piano-prezzo" id="prezzo-plus">€ 9,99</p>
+                <p class="piano-periodo">/ mese</p>
+                <ul class="piano-features">
+                    <li><i class="fa-solid fa-check"></i> Accesso ai viaggi standard</li>
+                    <li><i class="fa-solid fa-check"></i> Newsletter settimanale offerte</li>
+                    <li><i class="fa-solid fa-check"></i> Sconto 15% sulle prenotazioni</li>
+                    <li><i class="fa-solid fa-check"></i> Prenotazione prioritaria</li>
+                    <li><i class="fa-solid fa-check"></i> Assistenza via chat</li>
+                    <li class="disabled"><i class="fa-solid fa-xmark"></i> Viaggi esclusivi</li>
+                </ul>
+                <button class="btn-abbonati featured-btn" onclick="scegli('Plus')">Scegli Plus</button>
+            </div>
+
+            <div class="subpage-card piano-card">
+                <div class="subpage-card-icon">👑</div>
+                <h2 class="subpage-card-title">Premium</h2>
+                <p class="piano-prezzo" id="prezzo-premium">€ 19,99</p>
+                <p class="piano-periodo">/ mese</p>
+                <ul class="piano-features">
+                    <li><i class="fa-solid fa-check"></i> Accesso a tutti i viaggi</li>
+                    <li><i class="fa-solid fa-check"></i> Offerte flash in anteprima</li>
+                    <li><i class="fa-solid fa-check"></i> Sconto 40% sulle prenotazioni</li>
+                    <li><i class="fa-solid fa-check"></i> Prenotazione prioritaria</li>
+                    <li><i class="fa-solid fa-check"></i> Assistenza 24/7 dedicata</li>
+                    <li><i class="fa-solid fa-check"></i> Viaggi esclusivi riservati</li>
+                </ul>
+                <button class="btn-abbonati" onclick="scegli('Premium')">Scegli Premium</button>
+            </div>
+        </div>
+
+        <div class="viaggi-row">
+            <p id="abbonamenti-msg" class="match-msg"></p>
+        </div>
+
+        <div class="viaggi-row">
+            <div class="subpage-card wide-card" style="overflow-x:auto;">
+                <div class="subpage-card-icon"><i class="fa-solid fa-table-columns"></i></div>
+                <h2 class="subpage-card-title">Confronto piani</h2>
+                <table class="confronto-table">
+                    <thead>
+                    <tr>
+                        <th>Funzionalità</th>
+                        <th>🌱 Base</th>
+                        <th>🚀 Plus</th>
+                        <th>👑 Premium</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>Accesso viaggi standard</td>
+                        <td><i class="fa-solid fa-check check-yes"></i></td>
+                        <td><i class="fa-solid fa-check check-yes"></i></td>
+                        <td><i class="fa-solid fa-check check-yes"></i></td>
+                    </tr>
+                    <tr>
+                        <td>Sconto sulle prenotazioni</td>
+                        <td>5%</td>
+                        <td>15%</td>
+                        <td>40%</td>
+                    </tr>
+                    <tr>
+                        <td>Newsletter offerte</td>
+                        <td>Mensile</td>
+                        <td>Settimanale</td>
+                        <td>Immediata</td>
+                    </tr>
+                    <tr>
+                        <td>Prenotazione prioritaria</td>
+                        <td><i class="fa-solid fa-xmark check-no"></i></td>
+                        <td><i class="fa-solid fa-check check-yes"></i></td>
+                        <td><i class="fa-solid fa-check check-yes"></i></td>
+                    </tr>
+                    <tr>
+                        <td>Assistenza clienti</td>
+                        <td>Email</td>
+                        <td>Chat</td>
+                        <td>24/7 dedicata</td>
+                    </tr>
+                    <tr>
+                        <td>Viaggi esclusivi</td>
+                        <td><i class="fa-solid fa-xmark check-no"></i></td>
+                        <td><i class="fa-solid fa-xmark check-no"></i></td>
+                        <td><i class="fa-solid fa-check check-yes"></i></td>
+                    </tr>
+                    <tr>
+                        <td>Cancellazione gratuita</td>
+                        <td><i class="fa-solid fa-xmark check-no"></i></td>
+                        <td>Fino a 7 gg prima</td>
+                        <td>Fino a 24h prima</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="viaggi-row">
+            <div class="subpage-card wide-card">
+                <div class="subpage-card-icon"><i class="fa-solid fa-circle-question"></i></div>
+                <h2 class="subpage-card-title">Domande frequenti</h2>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        Posso cambiare piano in qualsiasi momento?
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Sì, puoi fare upgrade o downgrade del tuo piano in qualsiasi momento.
+                        Le modifiche saranno attive dal prossimo ciclo di fatturazione.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        Come funziona il piano annuale?
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Con il piano annuale paghi in un'unica soluzione e risparmi il 20%
+                        rispetto al piano mensile, equivalente a 2 mesi gratuiti all'anno.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        Posso disdire l'abbonamento?
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Certo! Puoi disdire il tuo abbonamento in qualsiasi momento dal tuo
+                        profilo. Per i piani mensili la disdetta è immediata; per i piani annuali è attiva a
+                        scadenza.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        Gli sconti si cumulano con le promozioni attive?
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Gli sconti dell'abbonamento si applicano prima delle promozioni
+                        stagionali. Alcune offerte flash sono riservate esclusivamente agli abbonati Premium e
+                        potrebbero non essere cumulabili.</div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<script src="script.js"></script>
+</body>
+
+</html>
