@@ -249,9 +249,7 @@ function filtraAnno(anno, btn) {
     });
 }
 
-// =====================
-// Codici sconto
-// =====================
+
 const CODICI_VALIDI = { 'TRIP2025': '10%', 'ESTATE25': '15%', 'WELCOME': '5%' };
 
 function applicaCodice() {
