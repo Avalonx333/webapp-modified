@@ -18,3 +18,4 @@ public interface ViaggiRepository extends JpaRepository<Viaggi, Long> {
     """, nativeQuery = true)
     List<Viaggi> findByUtente(@Param("utenteId") Long utenteId);
 }
+//commento

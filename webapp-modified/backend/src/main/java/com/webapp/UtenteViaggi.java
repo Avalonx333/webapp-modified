@@ -18,3 +18,4 @@ import lombok.Data;
         @Column(name = "viaggio_id")
         private Long viaggioId;
     }
+//commento
