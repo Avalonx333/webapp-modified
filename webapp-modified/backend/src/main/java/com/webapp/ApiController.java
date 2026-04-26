@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -57,4 +58,23 @@ public class ApiController {
                 "utente", trovato
         ));
     }
+
+  // storico dei viaggi
+  // storico dei viaggi
+  // storico dei viaggi
+  @GetMapping("/miei-viaggi/{idUtente}")
+  public ResponseEntity<?> mieiViaggi(@PathVariable Integer idUtente) {
+
+      List<Viaggi> lista = service.getViaggiUtente(idUtente);
+
+      return ResponseEntity.ok(Map.of(
+              "status", "ok",
+              "viaggi", lista
+      ));
+  }
+
+
+
+
+
 }
