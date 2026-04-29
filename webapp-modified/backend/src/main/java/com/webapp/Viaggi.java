@@ -1,11 +1,6 @@
 package com.webapp;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.util.Date;
 
@@ -26,6 +21,12 @@ public class Viaggi {
     private String destinazione;
     private String partenza;
     private String albergo;
+
+    // campi aggiuntivi per storico
+    private Integer adulti;
+    private Integer bambini;
+    private Integer stelle;
+    private String tipo;
 
     public Integer getId() {
         return id;
@@ -74,5 +75,36 @@ public class Viaggi {
     public void setAlbergo(String albergo) {
         this.albergo = albergo;
     }
+
+    public Integer getAdulti() {
+        return adulti;
+    }
+
+    public void setAdulti(Integer adulti) {
+        this.adulti = adulti;
+    }
+
+    public Integer getBambini() {
+        return bambini;
+    }
+
+    public void setBambini(Integer bambini) {
+        this.bambini = bambini;
+    }
+
+    public Integer getStelle() {
+        return stelle;
+    }
+
+    public void setStelle(Integer stelle) {
+        this.stelle = stelle;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
 }
-//commento

@@ -49,7 +49,7 @@ public class AuthService {
         return trovato;
     }
 
-    public List<Viaggi> getViaggiUtente(long utenteId) {
+    public List<Viaggi> getViaggiUtente(Long utenteId) {
         return viaggiRepository.findByUtente(utenteId);
     }
 }

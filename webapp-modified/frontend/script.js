@@ -7,19 +7,18 @@ const API_BASE = "http://localhost:8080/api";
 document.addEventListener("DOMContentLoaded", () => {
 
     // ===============================
-    // HEADER: MOSTRA NOME UTENTE
+    // HEADER: MOSTRA NOME UTENTE + "I MIEI VIAGGI"
     // ===============================
 
     const username = localStorage.getItem("username");
     const linkAccedi = document.getElementById("link-accedi");
     const linkRegistrati = document.getElementById("link-registrati");
+    const linkMieiViaggi = document.getElementById("link-miei-viaggi");
 
     if (username && linkAccedi && linkRegistrati) {
-        // Trasforma "Accedi" → "Ciao, Marta"
         linkAccedi.textContent = "Ciao, " + username;
         linkAccedi.removeAttribute("href");
 
-        // Trasforma "Registrati" → "Logout"
         linkRegistrati.textContent = "Logout";
         linkRegistrati.href = "#";
 
@@ -27,8 +26,16 @@ document.addEventListener("DOMContentLoaded", () => {
             e.preventDefault();
             localStorage.removeItem("utenteId");
             localStorage.removeItem("username");
-            window.location.reload();
+            window.location.href = "index.html";
         });
+
+        if (linkMieiViaggi) {
+            linkMieiViaggi.style.display = "inline-block";
+        }
+    } else {
+        if (linkMieiViaggi) {
+            linkMieiViaggi.style.display = "none";
+        }
     }
 
     // =====================
@@ -50,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const pwd2 = document.getElementById("pwd2");
     const matchMsg = document.getElementById("match-msg");
 
-    if (pwd2) {
+    if (pwd2 && pwd && matchMsg) {
         pwd2.addEventListener("input", () => {
             if (pwd.value === pwd2.value) {
                 matchMsg.textContent = "✓ Le password coincidono";
@@ -68,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const btnSubmit = document.querySelector(".btn-submit");
 
-    if (btnSubmit) {
+    if (btnSubmit && document.body.id === "registrati") {
         btnSubmit.addEventListener("click", async () => {
             const username = document.getElementById("text").value.trim();
             const email = document.getElementById("email").value.trim();
@@ -132,7 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (data.status === "ok") {
                     localStorage.setItem("utenteId", data.utente.id);
-                    localStorage.setItem("username", data.utente.username); // <--- FONDAMENTALE
+                    localStorage.setItem("username", data.utente.username);
                     window.location.href = "index.html";
                 } else {
                     alert("Credenziali errate");
@@ -145,49 +152,35 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ===============================
-    // PAGINA VIAGGI
+    // PAGINA VIAGGI: guest vs user
     // ===============================
 
-    if (document.body.id === "viaggi") {
+    if (document.body.id === "viaggi" && window.location.pathname.toLowerCase().includes("viaggi.html")) {
         const idUtente = localStorage.getItem("utenteId");
+        const guest = document.getElementById("viaggi-guest");
+        const user = document.getElementById("viaggi-user");
 
         if (!idUtente) {
-            attivaModalitaStatica();
-            disabilitaInterazioni();
+            if (guest) guest.style.display = "block";
+            if (user) user.style.display = "none";
+        } else {
+            if (guest) guest.style.display = "none";
+            if (user) user.style.display = "block";
+        }
+    }
+
+    // ===============================
+    // PAGINA STORICO VIAGGI
+    // ===============================
+
+    if (document.body.id === "viaggi" && window.location.pathname.toLowerCase().includes("storico.html")) {
+        const idUtente = localStorage.getItem("utenteId");
+        if (!idUtente) {
+            alert("Devi effettuare l'accesso per vedere lo storico.");
+            window.location.href = "accedi.html";
         } else {
             caricaStoricoViaggi();
         }
-    }
-
-    function attivaModalitaStatica() {
-        const stats = document.getElementById("statistiche");
-        if (stats) stats.style.display = "none";
-
-        const container = document.getElementById("storico-lista");
-        if (container) {
-            container.innerHTML = `<p class="vuoto">Accedi per vedere il tuo storico viaggi.</p>`;
-        }
-
-        const filtri = document.getElementById("filtri-viaggi");
-        if (filtri) filtri.style.display = "none";
-    }
-
-    function disabilitaInterazioni() {
-        document.querySelectorAll("a").forEach(a => {
-            a.addEventListener("click", e => e.preventDefault());
-            a.style.pointerEvents = "none";
-            a.style.opacity = "0.5";
-        });
-
-        document.querySelectorAll("button").forEach(btn => {
-            btn.disabled = true;
-            btn.style.opacity = "0.5";
-        });
-
-        document.querySelectorAll(".subpage-card, .card, .cliccabile").forEach(el => {
-            el.style.pointerEvents = "none";
-            el.style.opacity = "0.6";
-        });
     }
 
     async function caricaStoricoViaggi() {
@@ -202,6 +195,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
             generaStorico(data.viaggi);
             aggiornaStatistiche(data.viaggi);
+            popolaFiltriAnni(data.viaggi);
+            inizializzaMappaStorico(data.viaggi);
 
         } catch (err) {
             console.error("Errore:", err);
@@ -210,9 +205,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function generaStorico(lista) {
         const container = document.getElementById("storico-lista");
+        if (!container) return;
         container.innerHTML = "";
 
-        if (lista.length === 0) {
+        if (!lista || lista.length === 0) {
             container.innerHTML = `<p class="vuoto">Non hai ancora effettuato viaggi.</p>`;
             return;
         }
@@ -231,9 +227,9 @@ document.addEventListener("DOMContentLoaded", () => {
                         ${formattaData(v.dataAndata)} – ${formattaData(v.dataRitorno)}
                     </p>
                     <p class="storico-info">
-                        👥 ${v.adulti} adulti &nbsp;|&nbsp;
-                        🏨 ${v.stelle} stelle &nbsp;|&nbsp;
-                        🏖 ${v.tipo}
+                        👥 ${v.adulti || 1} adulti &nbsp;|&nbsp;
+                        🏨 ${v.stelle || 3} stelle &nbsp;|&nbsp;
+                        🏖 ${v.tipo || "Viaggio"}
                     </p>
                 </div>
             `;
@@ -241,7 +237,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function aggiornaStatistiche(lista) {
-        document.getElementById("stat-totale").textContent = lista.length;
+        const statTotale = document.getElementById("stat-totale");
+        const statPaesi = document.getElementById("stat-paesi");
+        const statGiorni = document.getElementById("stat-giorni");
+        if (!lista || !statTotale || !statPaesi || !statGiorni) return;
+
+        statTotale.textContent = lista.length;
 
         let giorniTotali = 0;
         let paesi = new Set();
@@ -253,13 +254,268 @@ document.addEventListener("DOMContentLoaded", () => {
             paesi.add(v.destinazione);
         });
 
-        document.querySelectorAll(".stat-item")[1].querySelector(".stat-num").textContent = paesi.size;
-        document.querySelectorAll(".stat-item")[2].querySelector(".stat-num").textContent = giorniTotali;
+        statPaesi.textContent = paesi.size;
+        statGiorni.textContent = giorniTotali;
+    }
+
+    function popolaFiltriAnni(lista) {
+        const filtro = document.getElementById("filtro-anni");
+        if (!filtro || !lista) return;
+
+        const anni = new Set();
+        lista.forEach(v => {
+            const anno = new Date(v.dataAndata).getFullYear();
+            anni.add(anno);
+        });
+
+        filtro.innerHTML = "";
+        const btnTutti = document.createElement("button");
+        btnTutti.className = "filtro-btn active";
+        btnTutti.textContent = "Tutti";
+        btnTutti.onclick = () => filtraAnno('tutti', btnTutti);
+        filtro.appendChild(btnTutti);
+
+        Array.from(anni).sort((a, b) => b - a).forEach(anno => {
+            const btn = document.createElement("button");
+            btn.className = "filtro-btn";
+            btn.textContent = anno;
+            btn.onclick = () => filtraAnno(String(anno), btn);
+            filtro.appendChild(btn);
+        });
+    }
+
+    window.filtraAnno = function (anno, btn) {
+        const cards = document.querySelectorAll(".storico-card");
+        cards.forEach(c => {
+            const cardAnno = c.getAttribute("data-anno");
+            if (anno === "tutti" || cardAnno === anno) {
+                c.style.display = "flex";
+            } else {
+                c.style.display = "none";
+            }
+        });
+
+        document.querySelectorAll(".filtro-btn").forEach(b => b.classList.remove("active"));
+        if (btn) btn.classList.add("active");
+    };
+
+    function inizializzaMappaStorico(lista) {
+        const mapDiv = document.getElementById("map-storico");
+        if (!mapDiv || !window.L || !lista || lista.length === 0) return;
+
+        const map = L.map("map-storico").setView([20, 0], 2);
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 18,
+            attribution: "&copy; OpenStreetMap"
+        }).addTo(map);
+
+        lista.forEach(v => {
+            // qui potresti usare un geocoding vero; per ora placeholder random
+            const lat = (Math.random() * 140) - 70;
+            const lng = (Math.random() * 360) - 180;
+            L.marker([lat, lng]).addTo(map)
+                .bindPopup(`<b>${v.destinazione}</b><br>${formattaData(v.dataAndata)} – ${formattaData(v.dataRitorno)}`);
+        });
     }
 
     function formattaData(data) {
         const d = new Date(data);
-        return d.toLocaleDateString("it-IT", { day: "2-digit", month: "short" });
+        return d.toLocaleDateString("it-IT", { day: "2-digit", month: "short", year: "numeric" });
+    }
+
+    // ===============================
+    // PAGINA PRENOTA: logica prenotazione
+    // ===============================
+
+    if (document.body.id === "viaggi" && window.location.pathname.toLowerCase().includes("prenota.html")) {
+        const idUtente = localStorage.getItem("utenteId");
+        if (!idUtente) {
+            alert("Devi effettuare l'accesso per prenotare un viaggio.");
+            window.location.href = "accedi.html";
+        } else {
+            selectStelle(3); // default
+        }
+    }
+
+    window.changeCount = function (tipo, delta) {
+        const span = document.getElementById(`count-${tipo}`);
+        if (!span) return;
+        let val = parseInt(span.textContent, 10);
+        val += delta;
+        if (tipo === "adulti" && val < 1) val = 1;
+        if (tipo === "bambini" && val < 0) val = 0;
+        span.textContent = val;
+    };
+
+    window.selectStelle = function (n) {
+        const stelle = document.querySelectorAll("#stelle-selector .stella");
+        stelle.forEach(s => {
+            const val = parseInt(s.getAttribute("data-val"), 10);
+            if (val <= n) {
+                s.classList.add("attiva");
+            } else {
+                s.classList.remove("attiva");
+            }
+        });
+        const label = document.getElementById("stelle-label");
+        if (label) {
+            label.textContent = `${n} stelle selezionate`;
+        }
+        document.body.dataset.stelleSelezionate = n;
+    };
+
+    window.prenotaViaggio = async function () {
+        const idUtente = localStorage.getItem("utenteId");
+        if (!idUtente) {
+            alert("Devi effettuare l'accesso per prenotare.");
+            window.location.href = "accedi.html";
+            return;
+        }
+
+        const destinazione = document.getElementById("destinazione")?.value.trim();
+        const dataAndata = document.getElementById("data-partenza")?.value;
+        const dataRitorno = document.getElementById("data-ritorno")?.value;
+        const adulti = parseInt(document.getElementById("count-adulti")?.textContent || "1", 10);
+        const bambini = parseInt(document.getElementById("count-bambini")?.textContent || "0", 10);
+        const tipo = document.querySelector("input[name='tipo']:checked")?.value || "viaggio";
+        const stelle = parseInt(document.body.dataset.stelleSelezionate || "3", 10);
+
+        if (!destinazione || !dataAndata || !dataRitorno) {
+            alert("Compila tutti i campi obbligatori.");
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_BASE}/prenota`, {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    utenteId: idUtente,
+                    destinazione,
+                    dataAndata,
+                    dataRitorno,
+                    adulti,
+                    bambini,
+                    tipo,
+                    stelle
+                }),
+            });
+
+            const data = await res.json();
+
+            if (data.status === "ok") {
+                alert("Prenotazione effettuata con successo!");
+                window.location.href = "Storico.html";
+            } else {
+                alert(data.messaggio || "Errore nella prenotazione");
+            }
+
+        } catch (err) {
+            console.error(err);
+            alert("Errore di connessione");
+        }
+    };
+
+    // ===============================
+    // NAVIGAZIONE UTENTE LOGGATO
+    // ===============================
+
+    window.navigateTo = function (page) {
+        const idUtente = localStorage.getItem("utenteId");
+        if (!idUtente) {
+            alert("Devi effettuare l'accesso per accedere a questa sezione.");
+            window.location.href = "accedi.html";
+            return;
+        }
+        window.location.href = page;
+    };
+
+    // ===============================
+    // RECENSIONI (frontend generico)
+    // ===============================
+
+    if (window.location.pathname.toLowerCase().includes("recenzioni.html")) {
+        caricaUltimeRecensioni();
+
+        const btnInviaRec = document.getElementById("btn-invia-recensione");
+        if (btnInviaRec) {
+            btnInviaRec.addEventListener("click", inviaRecensione);
+        }
+    }
+
+    async function caricaUltimeRecensioni() {
+        const container = document.getElementById("rec-list");
+        if (!container) return;
+
+        try {
+            const res = await fetch(`${API_BASE}/recensioni/ultime`);
+            const data = await res.json();
+            if (data.status !== "ok") return;
+
+            container.innerHTML = "";
+            data.recensioni.forEach(r => {
+                container.innerHTML += `
+                    <div class="subpage-card rec-card">
+                        <div class="rec-card-header">
+                            <div>
+                                <p class="rec-nome">${r.utente.username}</p>
+                                <p class="rec-dest">${r.destinazione}</p>
+                            </div>
+                            <div class="rec-stelle">${"★".repeat(r.stelle)}${"☆".repeat(5 - r.stelle)}</div>
+                        </div>
+                        <p class="rec-testo">"${r.testo}"</p>
+                        <p class="rec-data">${new Date(r.dataRecensione).toLocaleDateString("it-IT")}</p>
+                    </div>
+                `;
+            });
+
+        } catch (err) {
+            console.error("Errore caricamento recensioni:", err);
+        }
+    }
+
+    async function inviaRecensione() {
+        const idUtente = localStorage.getItem("utenteId");
+        if (!idUtente) {
+            alert("Devi effettuare l'accesso per lasciare una recensione.");
+            window.location.href = "accedi.html";
+            return;
+        }
+
+        const destinazione = document.getElementById("rec-destinazione")?.value.trim();
+        const testo = document.getElementById("rec-testo")?.value.trim();
+        const stelle = parseInt(document.querySelector("input[name='rec-stelle']:checked")?.value || "5", 10);
+
+        if (!destinazione || !testo) {
+            alert("Compila tutti i campi della recensione.");
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_BASE}/recensioni`, {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    utenteId,
+                    destinazione,
+                    testo,
+                    stelle
+                }),
+            });
+
+            const data = await res.json();
+            if (data.status === "ok") {
+                alert("Recensione inviata!");
+                caricaUltimeRecensioni();
+            } else {
+                alert(data.messaggio || "Errore nell'invio della recensione");
+            }
+
+        } catch (err) {
+            console.error(err);
+            alert("Errore di connessione");
+        }
     }
 
 });

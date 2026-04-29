@@ -4,8 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api")
@@ -20,6 +19,12 @@ public class ApiController {
 
     @Autowired
     private ViaggiRepository viaggiRepository;
+
+    @Autowired
+    private UtenteViaggiRepository utenteViaggiRepository;
+
+    @Autowired
+    private RecenzioniRepository recensioneRepository;
 
     @Autowired
     private EmailServer emailService;
@@ -41,16 +46,14 @@ public class ApiController {
             ));
         }
 
-        service.registra(u);
+        Utente salvato = service.registra(u);
 
         return ResponseEntity.ok(Map.of(
                 "status", "ok",
-                "messaggio", "Registrazione avvenuta con successo!"
+                "messaggio", "Registrazione avvenuta con successo!",
+                "utente", salvato
         ));
     }
-
-
-
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Utente u) {
@@ -73,7 +76,7 @@ public class ApiController {
 
     // Storico dei viaggi
     @GetMapping("/miei-viaggi/{idUtente}")
-    public ResponseEntity<?> mieiViaggi(@PathVariable Integer idUtente) {
+    public ResponseEntity<?> mieiViaggi(@PathVariable Long idUtente) {
 
         List<Viaggi> lista = service.getViaggiUtente(idUtente);
 
@@ -83,7 +86,7 @@ public class ApiController {
         ));
     }
 
-    // Prenotazione viaggio con invio email di conferma
+    // Prenotazione viaggio con salvataggio su utenti_viaggi e invio email
     @PostMapping("/prenota")
     public ResponseEntity<?> prenota(@RequestBody Map<String, Object> body) {
         try {
@@ -102,7 +105,20 @@ public class ApiController {
             v.setPartenza(body.getOrDefault("partenza", "Italia").toString());
             v.setAlbergo(body.getOrDefault("albergo", "Da definire").toString());
 
-            // Parse date con gestione errore separata
+            // campi aggiuntivi opzionali
+            if (body.containsKey("adulti")) {
+                v.setAdulti(Integer.parseInt(body.get("adulti").toString()));
+            }
+            if (body.containsKey("bambini")) {
+                v.setBambini(Integer.parseInt(body.get("bambini").toString()));
+            }
+            if (body.containsKey("tipo")) {
+                v.setTipo(body.get("tipo").toString());
+            }
+            if (body.containsKey("stelle")) {
+                v.setStelle(Integer.parseInt(body.get("stelle").toString()));
+            }
+
             try {
                 java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
                 v.setDataAndata(sdf.parse(body.get("dataAndata").toString()));
@@ -119,8 +135,13 @@ public class ApiController {
             UtenteViaggi uv = new UtenteViaggi();
             uv.setUtenteId(utenteId);
             uv.setViaggioId(salvato.getId().longValue());
+            utenteViaggiRepository.save(uv);
 
-            // ... resto della logica (salvataggio uv, invio email, ecc.)
+            try {
+                emailService.emailPrenotazione(utente, salvato);
+            } catch (Exception e) {
+                System.err.println("Errore invio email prenotazione: " + e.getMessage());
+            }
 
             return ResponseEntity.ok(Map.of(
                     "status", "ok",
@@ -135,6 +156,7 @@ public class ApiController {
             ));
         }
     }
+
     // Ottenere dati utente tramite ID (per mostrare il nome nell'header)
     @GetMapping("/utente/{id}")
     public ResponseEntity<?> getUtente(@PathVariable Long id) {
@@ -154,4 +176,52 @@ public class ApiController {
         ));
     }
 
+    // Salva una recensione
+    @PostMapping("/recensioni")
+    public ResponseEntity<?> salvaRecensione(@RequestBody Map<String, Object> body) {
+        try {
+            Long utenteId = Long.parseLong(body.get("utenteId").toString());
+            String destinazione = body.get("destinazione").toString();
+            int stelle = Integer.parseInt(body.get("stelle").toString());
+            String testo = body.get("testo").toString();
+
+            Utente utente = utenteRepository.findById(utenteId).orElse(null);
+            if (utente == null) {
+                return ResponseEntity.status(404).body(Map.of(
+                        "status", "errore",
+                        "messaggio", "Utente non trovato"
+                ));
+            }
+
+            Recenzioni r = new Recenzioni();
+            r.setUtente(utente);
+            r.setDestinazione(destinazione);
+            r.setStelle(stelle);
+            r.setTesto(testo);
+            r.setDataRecensione(new Date());
+
+            Recenzioni salvata = recensioneRepository.save(r);
+
+            return ResponseEntity.ok(Map.of(
+                    "status", "ok",
+                    "recensione", salvata
+            ));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of(
+                    "status", "errore",
+                    "messaggio", "Errore interno: " + e.getMessage()
+            ));
+        }
+    }
+
+    // Ultime 8 recensioni (le più recenti)
+    @GetMapping("/recensioni/ultime")
+    public ResponseEntity<?> ultimeRecensioni() {
+        List<Recenzioni> lista = recensioneRepository.findTop8ByOrderByDataRecensioneDesc();
+        return ResponseEntity.ok(Map.of(
+                "status", "ok",
+                "recensioni", lista
+        ));
+    }
 }

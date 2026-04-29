@@ -7,6 +7,10 @@
     <title>Storico dei tuoi viaggi</title>
     <link rel="stylesheet" href="style.css" />
     <script src="https://kit.fontawesome.com/12df662af6.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 </head>
 
 <body id="viaggi">
@@ -26,60 +30,33 @@
                 <h2 class="subpage-card-title">Filtra per anno</h2>
                 <div class="filtro-anni" id="filtro-anni">
                     <button class="filtro-btn active" onclick="filtraAnno('tutti', this)">Tutti</button>
-                    <button class="filtro-btn" onclick="filtraAnno('2025', this)">2025</button>
-                    <button class="filtro-btn" onclick="filtraAnno('2024', this)">2024</button>
-                    <button class="filtro-btn" onclick="filtraAnno('2023', this)">2023</button>
                 </div>
             </div>
             <div class="subpage-card wide-card">
                 <div class="subpage-card-icon"><i class="fa-solid fa-chart-simple"></i></div>
                 <h2 class="subpage-card-title">Riepilogo</h2>
                 <div class="stats-row">
-                    <div class="stat-item"><span class="stat-num" id="stat-totale">3</span><span
+                    <div class="stat-item"><span class="stat-num" id="stat-totale">0</span><span
                             class="stat-desc">Viaggi totali</span></div>
-                    <div class="stat-item"><span class="stat-num">12</span><span class="stat-desc">Paesi
+                    <div class="stat-item"><span class="stat-num" id="stat-paesi">0</span><span class="stat-desc">Paesi
                                 visitati</span></div>
-                    <div class="stat-item"><span class="stat-num">47</span><span class="stat-desc">Giorni in
+                    <div class="stat-item"><span class="stat-num" id="stat-giorni">0</span><span class="stat-desc">Giorni in
                                 viaggio</span></div>
                 </div>
             </div>
         </div>
 
-        <div class="viaggi-row" id="storico-lista">
-            <div class="subpage-card storico-card" data-anno="2025">
-                <div class="storico-header">
-                    <span class="storico-dest"><i class="fa-solid fa-location-dot"></i> Maldive</span>
-                    <span class="storico-anno">2025</span>
-                </div>
-                <p class="storico-date"><i class="fa-regular fa-calendar"></i> 10 Gen – 20 Gen 2025</p>
-                <p class="storico-info">👥 2 adulti &nbsp;|&nbsp; 🏨 5 stelle &nbsp;|&nbsp; 🏖 Mare</p>
-                <div class="storico-rating">
-                    <span style="color:#EFBF04">★★★★★</span>
-                </div>
+        <div class="viaggi-row">
+            <div id="storico-lista" class="viaggi-row">
+                <!-- riempito da JS -->
             </div>
+        </div>
 
-            <div class="subpage-card storico-card" data-anno="2024">
-                <div class="storico-header">
-                    <span class="storico-dest"><i class="fa-solid fa-location-dot"></i> Tokyo</span>
-                    <span class="storico-anno">2024</span>
-                </div>
-                <p class="storico-date"><i class="fa-regular fa-calendar"></i> 5 Mar – 15 Mar 2024</p>
-                <p class="storico-info">👥 2 adulti &nbsp;|&nbsp; 🏨 4 stelle &nbsp;|&nbsp; 🏙 Città</p>
-                <div class="storico-rating">
-                    <span style="color:#EFBF04">★★★★☆</span>
-                </div>
-            </div>
-
-            <div class="subpage-card storico-card" data-anno="2023">
-                <div class="storico-header">
-                    <span class="storico-dest"><i class="fa-solid fa-location-dot"></i> Dolomiti</span>
-                    <span class="storico-anno">2023</span>
-                </div>
-                <p class="storico-date"><i class="fa-regular fa-calendar"></i> 20 Lug – 27 Lug 2023</p>
-                <p class="storico-info">👥 4 adulti &nbsp;|&nbsp; 🏨 3 stelle &nbsp;|&nbsp; 🏔 Montagna</p>
-                <div class="storico-rating">
-                    <span style="color:#EFBF04">★★★★★</span>
-                </div>
+        <div class="viaggi-row">
+            <div class="subpage-card wide-card">
+                <div class="subpage-card-icon"><i class="fa-solid fa-map-location-dot"></i></div>
+                <h2 class="subpage-card-title">Mappa dei tuoi viaggi</h2>
+                <div id="map-storico" style="width:100%; height:400px; border-radius:20px; border:2px solid #353535;"></div>
             </div>
         </div>
     </div>
