@@ -108,6 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 // ✔️ UTENTE TROVATO
                 if (data.status === "ok") {
+                    localStorage.setItem("utenteId", data.utente.id);
                     alert("Accesso effettuato!");
                     window.location.href = "indexAccesso.html";   // <-- QUI APRI LA HOME
                     return;
@@ -232,3 +233,82 @@ document.addEventListener("DOMContentLoaded", () => {
 
 })
 
+
+// =====================
+// PRENOTAZIONE VIAGGIO
+// =====================
+
+let adultiCount = 1;
+let bambiniCount = 0;
+let stelleSelezionate = 0;
+
+function changeCount(tipo, delta) {
+    if (tipo === 'adulti') {
+        adultiCount = Math.max(1, adultiCount + delta);
+        document.getElementById('count-adulti').textContent = adultiCount;
+    } else {
+        bambiniCount = Math.max(0, bambiniCount + delta);
+        document.getElementById('count-bambini').textContent = bambiniCount;
+    }
+}
+
+function selectStelle(n) {
+    stelleSelezionate = n;
+    document.querySelectorAll('#stelle-selector .stella').forEach((s, i) => {
+        s.style.color = i < n ? '#EFBF04' : '#ccc';
+    });
+    document.getElementById('stelle-label').textContent = n + ' stelle selezionate';
+}
+
+async function prenotaViaggio() {
+    const destinazione = document.getElementById('destinazione')?.value.trim();
+    const dataAndata = document.getElementById('data-partenza')?.value;
+    const dataRitorno = document.getElementById('data-ritorno')?.value;
+    const tipo = document.querySelector('input[name="tipo"]:checked')?.value || 'mare';
+
+    if (!destinazione || !dataAndata || !dataRitorno) {
+        alert('Compila tutti i campi obbligatori (destinazione e date).');
+        return;
+    }
+    if (dataRitorno <= dataAndata) {
+        alert('La data di ritorno deve essere successiva alla data di partenza.');
+        return;
+    }
+    if (stelleSelezionate === 0) {
+        alert('Seleziona la categoria hotel (stelle).');
+        return;
+    }
+
+    const utenteId = localStorage.getItem('utenteId');
+    if (!utenteId) {
+        alert('Devi effettuare l\'accesso per prenotare.');
+        window.location.href = 'accedi.html';
+        return;
+    }
+
+    const payload = {
+        utenteId: utenteId,
+        destinazione: destinazione,
+        partenza: 'Italia',
+        albergo: stelleSelezionate + ' stelle - ' + tipo,
+        dataAndata: dataAndata,
+        dataRitorno: dataRitorno
+    };
+
+    try {
+        const res = await fetch(`${API_BASE}/prenota`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.status === 'ok') {
+            alert('✅ ' + data.messaggio);
+            window.location.href = 'index.html';
+        } else {
+            alert('❌ ' + data.messaggio);
+        }
+    } catch (err) {
+        alert('Errore di connessione al server: ' + err.message);
+    }
+}

@@ -10,7 +10,12 @@ public class AuthService {
 
     @Autowired
     private Utenterepository repo;
+
+    @Autowired
     private ViaggiRepository viaggiRepository;
+
+    @Autowired
+    private EmailService emailService;
 
     public boolean usernameEsiste(String username) {
         return repo.findByUsername(username).isPresent();
@@ -21,18 +26,30 @@ public class AuthService {
     }
 
     public Utente registra(Utente u) {
-        return repo.save(u);
+        Utente salvato = repo.save(u);
+        try {
+            emailService.emailBenvenuto(salvato);
+        } catch (Exception e) {
+            System.err.println("Errore invio email benvenuto: " + e.getMessage());
+        }
+        return salvato;
     }
 
     public Utente login(String username, String password) {
-        return repo.findByUsername(username)
+        Utente trovato = repo.findByUsername(username)
                 .filter(u -> u.getPassword().equals(password))
                 .orElse(null);
+        if (trovato != null) {
+            try {
+                emailService.emailAccesso(trovato);
+            } catch (Exception e) {
+                System.err.println("Errore invio email accesso: " + e.getMessage());
+            }
+        }
+        return trovato;
     }
 
     public List<Viaggi> getViaggiUtente(long utenteId) {
         return viaggiRepository.findByUtente(utenteId);
-
     }
 }
-//commento
