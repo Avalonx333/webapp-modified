@@ -15,7 +15,7 @@ public class AuthService {
     private ViaggiRepository viaggiRepository;
 
     @Autowired
-    private EmailService emailService;
+    private EmailServer emailService;
 
     public boolean usernameEsiste(String username) {
         return repo.findByUsername(username).isPresent();

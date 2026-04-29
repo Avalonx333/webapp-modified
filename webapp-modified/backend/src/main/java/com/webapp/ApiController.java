@@ -49,6 +49,9 @@ public class ApiController {
         ));
     }
 
+
+
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Utente u) {
 
@@ -132,4 +135,23 @@ public class ApiController {
             ));
         }
     }
+    // Ottenere dati utente tramite ID (per mostrare il nome nell'header)
+    @GetMapping("/utente/{id}")
+    public ResponseEntity<?> getUtente(@PathVariable Long id) {
+
+        Utente u = utenteRepository.findById(id).orElse(null);
+
+        if (u == null) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "status", "errore",
+                    "messaggio", "Utente non trovato"
+            ));
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "status", "ok",
+                "utente", u
+        ));
+    }
+
 }

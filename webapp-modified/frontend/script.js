@@ -1,14 +1,40 @@
 // =====================
-// LOGIN + REGISTRAZIONE
+// CONFIG
 // =====================
 
 const API_BASE = "http://localhost:8080/api";
 
 document.addEventListener("DOMContentLoaded", () => {
 
+    // ===============================
+    // HEADER: MOSTRA NOME UTENTE
+    // ===============================
+
+    const username = localStorage.getItem("username");
+    const linkAccedi = document.getElementById("link-accedi");
+    const linkRegistrati = document.getElementById("link-registrati");
+
+    if (username && linkAccedi && linkRegistrati) {
+        // Trasforma "Accedi" → "Ciao, Marta"
+        linkAccedi.textContent = "Ciao, " + username;
+        linkAccedi.removeAttribute("href");
+
+        // Trasforma "Registrati" → "Logout"
+        linkRegistrati.textContent = "Logout";
+        linkRegistrati.href = "#";
+
+        linkRegistrati.addEventListener("click", (e) => {
+            e.preventDefault();
+            localStorage.removeItem("utenteId");
+            localStorage.removeItem("username");
+            window.location.reload();
+        });
+    }
+
     // =====================
-    // Toggle password
+    // TOGGLE PASSWORD
     // =====================
+
     document.querySelectorAll(".toggle-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
             const input = btn.previousElementSibling;
@@ -17,8 +43,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // =====================
-    // Controllo password corrispondentit
+    // MATCH PASSWORD
     // =====================
+
     const pwd = document.getElementById("pwd");
     const pwd2 = document.getElementById("pwd2");
     const matchMsg = document.getElementById("match-msg");
@@ -38,6 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // =====================
     // REGISTRAZIONE
     // =====================
+
     const btnSubmit = document.querySelector(".btn-submit");
 
     if (btnSubmit) {
@@ -66,13 +94,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 const data = await res.json();
 
                 if (data.status === "ok") {
-                    alert("✅ " + data.messaggio);
+                    alert("Registrazione avvenuta!");
                     window.location.href = "index.html";
                 } else {
-                    alert("❌ " + data.messaggio);
+                    alert(data.messaggio);
                 }
             } catch (err) {
-                alert("Errore di connessione al server: " + err.message);
+                alert("Errore di connessione");
             }
         });
     }
@@ -80,14 +108,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // =====================
     // LOGIN
     // =====================
-// =====================
-// LOGIN
-// =====================
+
     const btnAccedi = document.getElementById("btn-accedi");
 
     if (btnAccedi) {
         btnAccedi.addEventListener("click", async () => {
-
             const username = document.getElementById("text")?.value.trim() || "";
             const password = document.getElementById("pwd")?.value || "";
 
@@ -103,69 +128,83 @@ document.addEventListener("DOMContentLoaded", () => {
                     body: JSON.stringify({username, password}),
                 });
 
-                // Se il server non risponde con JSON → errore
                 const data = await res.json();
 
-                // ✔️ UTENTE TROVATO
                 if (data.status === "ok") {
                     localStorage.setItem("utenteId", data.utente.id);
-                    alert("Accesso effettuato!");
-                    window.location.href = "indexAccesso.html";   // <-- QUI APRI LA HOME
-                    return;
-                }
-
-                // ❌ UTENTE NON TROVATO
-                if (data.status === "errore") {
-                    alert("❌ Utente non trovato");
-                    return;
+                    localStorage.setItem("username", data.utente.username); // <--- FONDAMENTALE
+                    window.location.href = "index.html";
+                } else {
+                    alert("Credenziali errate");
                 }
 
             } catch (err) {
-                alert("Errore di connessione al server: " + err.message);
-                console.error(err);
+                alert("Errore di connessione");
             }
         });
     }
 
-
-
     // ===============================
-//   STORICO VIAGGI DINAMICO
-// ===============================
+    // PAGINA VIAGGI
+    // ===============================
 
-    const API_BASE = "http://localhost:8080/api";
-
-// Quando la pagina viaggi.html si apre
     if (document.body.id === "viaggi") {
-        document.addEventListener("DOMContentLoaded", () => {
+        const idUtente = localStorage.getItem("utenteId");
+
+        if (!idUtente) {
+            attivaModalitaStatica();
+            disabilitaInterazioni();
+        } else {
             caricaStoricoViaggi();
+        }
+    }
+
+    function attivaModalitaStatica() {
+        const stats = document.getElementById("statistiche");
+        if (stats) stats.style.display = "none";
+
+        const container = document.getElementById("storico-lista");
+        if (container) {
+            container.innerHTML = `<p class="vuoto">Accedi per vedere il tuo storico viaggi.</p>`;
+        }
+
+        const filtri = document.getElementById("filtri-viaggi");
+        if (filtri) filtri.style.display = "none";
+    }
+
+    function disabilitaInterazioni() {
+        document.querySelectorAll("a").forEach(a => {
+            a.addEventListener("click", e => e.preventDefault());
+            a.style.pointerEvents = "none";
+            a.style.opacity = "0.5";
+        });
+
+        document.querySelectorAll("button").forEach(btn => {
+            btn.disabled = true;
+            btn.style.opacity = "0.5";
+        });
+
+        document.querySelectorAll(".subpage-card, .card, .cliccabile").forEach(el => {
+            el.style.pointerEvents = "none";
+            el.style.opacity = "0.6";
         });
     }
 
     async function caricaStoricoViaggi() {
         const idUtente = localStorage.getItem("utenteId");
-
-        if (!idUtente) {
-            alert("Devi effettuare l'accesso");
-            window.location.href = "login.html";
-            return;
-        }
+        if (!idUtente) return;
 
         try {
             const res = await fetch(`${API_BASE}/miei-viaggi/${idUtente}`);
             const data = await res.json();
 
-            if (data.status !== "ok") {
-                alert("Errore nel caricamento dei viaggi");
-                return;
-            }
+            if (data.status !== "ok") return;
 
             generaStorico(data.viaggi);
             aggiornaStatistiche(data.viaggi);
 
         } catch (err) {
-            alert("Errore di connessione al server");
-            console.error(err);
+            console.error("Errore:", err);
         }
     }
 
@@ -182,28 +221,22 @@ document.addEventListener("DOMContentLoaded", () => {
             const anno = new Date(v.dataAndata).getFullYear();
 
             container.innerHTML += `
-            <div class="subpage-card storico-card" data-anno="${anno}">
-                <div class="storico-header">
-                    <span class="storico-dest"><i class="fa-solid fa-location-dot"></i> ${v.destinazione}</span>
-                    <span class="storico-anno">${anno}</span>
+                <div class="subpage-card storico-card" data-anno="${anno}">
+                    <div class="storico-header">
+                        <span class="storico-dest"><i class="fa-solid fa-location-dot"></i> ${v.destinazione}</span>
+                        <span class="storico-anno">${anno}</span>
+                    </div>
+                    <p class="storico-date">
+                        <i class="fa-regular fa-calendar"></i>
+                        ${formattaData(v.dataAndata)} – ${formattaData(v.dataRitorno)}
+                    </p>
+                    <p class="storico-info">
+                        👥 ${v.adulti} adulti &nbsp;|&nbsp;
+                        🏨 ${v.stelle} stelle &nbsp;|&nbsp;
+                        🏖 ${v.tipo}
+                    </p>
                 </div>
-
-                <p class="storico-date">
-                    <i class="fa-regular fa-calendar"></i>
-                    ${formattaData(v.dataAndata)} – ${formattaData(v.dataRitorno)}
-                </p>
-
-                <p class="storico-info">
-                    👥 ${v.adulti} adulti &nbsp;|&nbsp;
-                    🏨 ${v.stelle} stelle &nbsp;|&nbsp;
-                    🏖 ${v.tipo}
-                </p>
-
-                <div class="storico-rating">
-                    <span style="color:#EFBF04">${"★".repeat(v.stelle)}${"☆".repeat(5 - v.stelle)}</span>
-                </div>
-            </div>
-        `;
+            `;
         });
     }
 
@@ -216,9 +249,7 @@ document.addEventListener("DOMContentLoaded", () => {
         lista.forEach(v => {
             const start = new Date(v.dataAndata);
             const end = new Date(v.dataRitorno);
-            const diff = (end - start) / (1000 * 60 * 60 * 24);
-
-            giorniTotali += diff;
+            giorniTotali += (end - start) / (1000 * 60 * 60 * 24);
             paesi.add(v.destinazione);
         });
 
@@ -231,84 +262,4 @@ document.addEventListener("DOMContentLoaded", () => {
         return d.toLocaleDateString("it-IT", { day: "2-digit", month: "short" });
     }
 
-})
-
-
-// =====================
-// PRENOTAZIONE VIAGGIO
-// =====================
-
-let adultiCount = 1;
-let bambiniCount = 0;
-let stelleSelezionate = 0;
-
-function changeCount(tipo, delta) {
-    if (tipo === 'adulti') {
-        adultiCount = Math.max(1, adultiCount + delta);
-        document.getElementById('count-adulti').textContent = adultiCount;
-    } else {
-        bambiniCount = Math.max(0, bambiniCount + delta);
-        document.getElementById('count-bambini').textContent = bambiniCount;
-    }
-}
-
-function selectStelle(n) {
-    stelleSelezionate = n;
-    document.querySelectorAll('#stelle-selector .stella').forEach((s, i) => {
-        s.style.color = i < n ? '#EFBF04' : '#ccc';
-    });
-    document.getElementById('stelle-label').textContent = n + ' stelle selezionate';
-}
-
-async function prenotaViaggio() {
-    const destinazione = document.getElementById('destinazione')?.value.trim();
-    const dataAndata = document.getElementById('data-partenza')?.value;
-    const dataRitorno = document.getElementById('data-ritorno')?.value;
-    const tipo = document.querySelector('input[name="tipo"]:checked')?.value || 'mare';
-
-    if (!destinazione || !dataAndata || !dataRitorno) {
-        alert('Compila tutti i campi obbligatori (destinazione e date).');
-        return;
-    }
-    if (dataRitorno <= dataAndata) {
-        alert('La data di ritorno deve essere successiva alla data di partenza.');
-        return;
-    }
-    if (stelleSelezionate === 0) {
-        alert('Seleziona la categoria hotel (stelle).');
-        return;
-    }
-
-    const utenteId = localStorage.getItem('utenteId');
-    if (!utenteId) {
-        alert('Devi effettuare l\'accesso per prenotare.');
-        window.location.href = 'accedi.html';
-        return;
-    }
-
-    const payload = {
-        utenteId: utenteId,
-        destinazione: destinazione,
-        partenza: 'Italia',
-        albergo: stelleSelezionate + ' stelle - ' + tipo,
-        dataAndata: dataAndata,
-        dataRitorno: dataRitorno
-    };
-
-    try {
-        const res = await fetch(`${API_BASE}/prenota`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if (data.status === 'ok') {
-            alert('✅ ' + data.messaggio);
-            window.location.href = 'index.html';
-        } else {
-            alert('❌ ' + data.messaggio);
-        }
-    } catch (err) {
-        alert('Errore di connessione al server: ' + err.message);
-    }
-}
+});

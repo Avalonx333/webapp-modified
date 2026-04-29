@@ -46,6 +46,22 @@ h4 {
   border-radius: 100%;
   border: 2px solid black;
 }
+#cs-nav {
+
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  max-width: 200px;
+}
+
+#auth-guest, #auth-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 
 .card {
   width: 460px;
