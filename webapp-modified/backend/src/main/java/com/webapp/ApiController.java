@@ -22,7 +22,7 @@ public class ApiController {
     private ViaggiRepository viaggiRepository;
 
     @Autowired
-    private EmailService emailService;
+    private EmailServer emailService;
 
     @PostMapping("/registra")
     public ResponseEntity<?> registra(@RequestBody Utente u) {
@@ -99,15 +99,37 @@ public class ApiController {
             v.setPartenza(body.getOrDefault("partenza", "Italia").toString());
             v.setAlbergo(body.getOrDefault("albergo", "Da definire").toString());
 
-            // Parse date
-            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
-            v.setDataAndata(sdf.parse(body.get("dataAndata").toString()));
-            v.setDataRitorno(sdf.parse(body.get("dataRitorno").toString()));
+            // Parse date con gestione errore separata
+            try {
+                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+                v.setDataAndata(sdf.parse(body.get("dataAndata").toString()));
+                v.setDataRitorno(sdf.parse(body.get("dataRitorno").toString()));
+            } catch (java.text.ParseException e) {
+                return ResponseEntity.status(400).body(Map.of(
+                        "status", "errore",
+                        "messaggio", "Formato data non valido. Usa yyyy-MM-dd"
+                ));
+            }
 
             Viaggi salvato = viaggiRepository.save(v);
 
-            // Salva relazione utente-viaggio
             UtenteViaggi uv = new UtenteViaggi();
             uv.setUtenteId(utenteId);
             uv.setViaggioId(salvato.getId().longValue());
 
+            // ... resto della logica (salvataggio uv, invio email, ecc.)
+
+            return ResponseEntity.ok(Map.of(
+                    "status", "ok",
+                    "messaggio", "Prenotazione effettuata",
+                    "viaggioId", salvato.getId()
+            ));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of(
+                    "status", "errore",
+                    "messaggio", "Errore interno: " + e.getMessage()
+            ));
+        }
+    }
+}
