@@ -187,11 +187,19 @@ document.addEventListener("DOMContentLoaded", () => {
         const idUtente = localStorage.getItem("utenteId");
         if (!idUtente) return;
 
+        const container = document.getElementById("storico-lista");
+
         try {
             const res = await fetch(`${API_BASE}/miei-viaggi/${idUtente}`);
+
             const data = await res.json();
 
-            if (data.status !== "ok") return;
+            if (!res.ok || data.status !== "ok") {
+                const msg = data.messaggio || `Errore HTTP ${res.status}`;
+                console.error("Errore storico:", msg);
+                if (container) container.innerHTML = `<p class="vuoto">⚠️ ${msg}</p>`;
+                return;
+            }
 
             generaStorico(data.viaggi);
             aggiornaStatistiche(data.viaggi);
@@ -199,7 +207,8 @@ document.addEventListener("DOMContentLoaded", () => {
             inizializzaMappaStorico(data.viaggi);
 
         } catch (err) {
-            console.error("Errore:", err);
+            console.error("Errore connessione storico:", err);
+            if (container) container.innerHTML = `<p class="vuoto">Impossibile connettersi al server. Il backend è in esecuzione?</p>`;
         }
     }
 
@@ -328,16 +337,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // PAGINA PRENOTA: logica prenotazione
     // ===============================
 
-    if (document.body.id === "viaggi" && window.location.pathname.toLowerCase().includes("prenota.html")) {
-        const idUtente = localStorage.getItem("utenteId");
-        if (!idUtente) {
-            alert("Devi effettuare l'accesso per prenotare un viaggio.");
-            window.location.href = "accedi.html";
-        } else {
-            selectStelle(3); // default
-        }
-    }
-
+    // Definite PRIMA del blocco if, così sono disponibili subito al click
     window.changeCount = function (tipo, delta) {
         const span = document.getElementById(`count-${tipo}`);
         if (!span) return;
@@ -364,6 +364,16 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         document.body.dataset.stelleSelezionate = n;
     };
+
+    if (document.body.id === "viaggi" && window.location.pathname.toLowerCase().includes("prenota.html")) {
+        const idUtente = localStorage.getItem("utenteId");
+        if (!idUtente) {
+            alert("Devi effettuare l'accesso per prenotare un viaggio.");
+            window.location.href = "accedi.html";
+        } else {
+            selectStelle(3); // default stelle = 3
+        }
+    }
 
     window.prenotaViaggio = async function () {
         const idUtente = localStorage.getItem("utenteId");
@@ -497,7 +507,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({
-                    utenteId,
+                    utenteId: idUtente,
                     destinazione,
                     testo,
                     stelle
