@@ -42,4 +42,4 @@ public class UtenteViaggi {
         this.viaggioId = viaggioId;
     }
 }
-//commento
+//aaa

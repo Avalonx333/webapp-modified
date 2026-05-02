@@ -57,7 +57,7 @@ public class EmailServer {
                 "🏨  Hotel        : " + stelle + "\n" +
                 "🗺️  Tipo viaggio : " + (v.getTipo() != null ? v.getTipo() : "N/D") + "\n" +
                 "🔑  ID prenotaz. : #" + v.getId() + "\n" +
-                "────────────────────────────────\n\n" +
+                "c────────────────────────────────\n\n" +
                 "Grazie per aver scelto TripMood!\n" +
                 "Buon viaggio 🧳\n\n" +
                 "Il team TripMood";
@@ -70,3 +70,4 @@ public class EmailServer {
         mailSender.send(msg);
     }
 }
+//aaa

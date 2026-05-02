@@ -8,3 +8,4 @@ public interface RecenzioniRepository extends JpaRepository<Recenzioni, Long> {
 
     List<Recenzioni> findTop8ByOrderByDataRecensioneDesc();
 }
+//aaa
