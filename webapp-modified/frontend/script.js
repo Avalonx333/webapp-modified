@@ -357,6 +357,37 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    function prenotaGruppo(tipoViaggio) {
+        const utente = JSON.parse(localStorage.getItem("utenteLoggato"));
+
+        if (!utente) {
+            alert("Devi effettuare il login per prenotare un viaggio");
+            window.location.href = "login.html";
+            return;
+        }
+
+        fetch("http://localhost:8080/api/prenota/gruppo", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                email: utente.email,
+                tipo: tipoViaggio
+            })
+        })
+            .then(res => {
+                if (!res.ok) throw new Error("Errore nella prenotazione");
+                return res.text();
+            })
+            .then(msg => {
+                alert("Prenotazione effettuata! Controlla la tua email.");
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Errore durante la prenotazione");
+            });
+    }
+
+
     // ===============================
     // PAGINA PRENOTA: logica prenotazione
     // ===============================
