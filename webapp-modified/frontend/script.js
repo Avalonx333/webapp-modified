@@ -159,16 +159,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const idUtente = localStorage.getItem("utenteId");
         const guest = document.getElementById("viaggi-guest");
         const user = document.getElementById("viaggi-user");
-        const aggiunta = document.getElementById("viaggi-intro");
 
         if (!idUtente) {
-            if (guest) guest.style.display = "flex";
-            if (aggiunta) aggiunta.style.display = "flex"
+            if (guest) guest.style.display = "block";
             if (user) user.style.display = "none";
         } else {
             if (guest) guest.style.display = "none";
-            if (aggiunta) aggiunta.style.display = "none"
-            if (user) user.style.display = "flex";
+            if (user) user.style.display = "block";
         }
     }
 
@@ -190,19 +187,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const idUtente = localStorage.getItem("utenteId");
         if (!idUtente) return;
 
-        const container = document.getElementById("storico-lista");
-
         try {
             const res = await fetch(`${API_BASE}/miei-viaggi/${idUtente}`);
-
             const data = await res.json();
 
-            if (!res.ok || data.status !== "ok") {
-                const msg = data.messaggio || `Errore HTTP ${res.status}`;
-                console.error("Errore storico:", msg);
-                if (container) container.innerHTML = `<p class="vuoto">⚠️ ${msg}</p>`;
-                return;
-            }
+            if (data.status !== "ok") return;
 
             generaStorico(data.viaggi);
             aggiornaStatistiche(data.viaggi);
@@ -210,8 +199,7 @@ document.addEventListener("DOMContentLoaded", () => {
             inizializzaMappaStorico(data.viaggi);
 
         } catch (err) {
-            console.error("Errore connessione storico:", err);
-            if (container) container.innerHTML = `<p class="vuoto">Impossibile connettersi al server. Il backend è in esecuzione?</p>`;
+            console.error("Errore:", err);
         }
     }
 
@@ -337,62 +325,19 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ===============================
-    // VALIDAZIONE DESTINAZIONE (Nominatim / OpenStreetMap)
-    // ===============================
-
-    async function validaCitta(nome) {
-        if (!nome || nome.length < 2) return false;
-        try {
-            const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(nome)}&format=json&limit=5&featuretype=city,town,village`;
-            const res = await fetch(url, { headers: { "Accept-Language": "it" } });
-            const risultati = await res.json();
-            return risultati.some(r =>
-                ["city", "town", "village", "municipality", "administrative"].includes(r.type) ||
-                r.class === "place"
-            );
-        } catch (e) {
-            // Se Nominatim non è raggiungibile (es. rete scolastica), lascia passare
-            console.warn("Nominatim non raggiungibile, skip validazione:", e);
-            return true;
-        }
-    }
-
-    function prenotaGruppo(tipoViaggio) {
-        const utente = JSON.parse(localStorage.getItem("utenteLoggato"));
-
-        if (!utente) {
-            alert("Devi effettuare il login per prenotare un viaggio");
-            window.location.href = "login.html";
-            return;
-        }
-
-        fetch("http://localhost:8080/api/prenota/gruppo", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                email: utente.email,
-                tipo: tipoViaggio
-            })
-        })
-            .then(res => {
-                if (!res.ok) throw new Error("Errore nella prenotazione");
-                return res.text();
-            })
-            .then(msg => {
-                alert("Prenotazione effettuata! Controlla la tua email.");
-            })
-            .catch(err => {
-                console.error(err);
-                alert("Errore durante la prenotazione");
-            });
-    }
-
-
-    // ===============================
     // PAGINA PRENOTA: logica prenotazione
     // ===============================
 
-    // Definite PRIMA del blocco if, così sono disponibili subito al click
+    if (document.body.id === "viaggi" && window.location.pathname.toLowerCase().includes("prenota.html")) {
+        const idUtente = localStorage.getItem("utenteId");
+        if (!idUtente) {
+            alert("Devi effettuare l'accesso per prenotare un viaggio.");
+            window.location.href = "accedi.html";
+        } else {
+            selectStelle(3); // default
+        }
+    }
+
     window.changeCount = function (tipo, delta) {
         const span = document.getElementById(`count-${tipo}`);
         if (!span) return;
@@ -420,45 +365,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.dataset.stelleSelezionate = n;
     };
 
-    if (document.body.id === "viaggi" && window.location.pathname.toLowerCase().includes("prenota.html")) {
-        const idUtente = localStorage.getItem("utenteId");
-        if (!idUtente) {
-            alert("Devi effettuare l'accesso per prenotare un viaggio.");
-            window.location.href = "accedi.html";
-        } else {
-            selectStelle(3); // default stelle = 3
-
-            // Feedback in tempo reale mentre si digita la destinazione
-            const inputDest = document.getElementById("destinazione");
-            if (inputDest) {
-                let debounceTimer;
-                inputDest.addEventListener("input", () => {
-                    clearTimeout(debounceTimer);
-                    const val = inputDest.value.trim();
-                    const feedback = document.getElementById("dest-feedback");
-                    if (!feedback) return;
-                    if (val.length < 2) {
-                        feedback.textContent = "";
-                        feedback.style.color = "";
-                        return;
-                    }
-                    feedback.textContent = "⏳ Verifico...";
-                    feedback.style.color = "gray";
-                    debounceTimer = setTimeout(async () => {
-                        const ok = await validaCitta(val);
-                        if (ok) {
-                            feedback.textContent = "✅ Città riconosciuta";
-                            feedback.style.color = "green";
-                        } else {
-                            feedback.textContent = "⚠️ Città non trovata, controlla il nome";
-                            feedback.style.color = "orange";
-                        }
-                    }, 600);
-                });
-            }
-        }
-    }
-
     window.prenotaViaggio = async function () {
         const idUtente = localStorage.getItem("utenteId");
         if (!idUtente) {
@@ -477,13 +383,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!destinazione || !dataAndata || !dataRitorno) {
             alert("Compila tutti i campi obbligatori.");
-            return;
-        }
-
-        // Valida che la destinazione sia una città reale
-        const cittaValida = await validaCitta(destinazione);
-        if (!cittaValida) {
-            alert(`⚠️ "${destinazione}" non sembra una città valida. Controlla il nome e riprova.`);
             return;
         }
 
@@ -576,16 +475,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    //mappa index//
-
-    var map = L.map('map').setView([45.62928126111086, 9.021469519511175], 17);
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(map);
-    var marker = L.marker([45.62928126111086, 9.021469519511175]).addTo(map);
-    marker.bindPopup("<b>Sede TripMood</b><br>la nostra sede ufficiale!").openPopup();
-
     async function inviaRecensione() {
         const idUtente = localStorage.getItem("utenteId");
         if (!idUtente) {
@@ -608,7 +497,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({
-                    utenteId: idUtente,
+                    utenteId,
                     destinazione,
                     testo,
                     stelle
@@ -630,5 +519,3 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 });
-
-//aaa
