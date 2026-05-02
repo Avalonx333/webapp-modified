@@ -159,13 +159,16 @@ document.addEventListener("DOMContentLoaded", () => {
         const idUtente = localStorage.getItem("utenteId");
         const guest = document.getElementById("viaggi-guest");
         const user = document.getElementById("viaggi-user");
+        const aggiunta = document.getElementById("viaggi-intro");
 
         if (!idUtente) {
-            if (guest) guest.style.display = "block";
+            if (guest) guest.style.display = "flex";
+            if (aggiunta) aggiunta.style.display = "flex"
             if (user) user.style.display = "none";
         } else {
             if (guest) guest.style.display = "none";
-            if (user) user.style.display = "block";
+            if (aggiunta) aggiunta.style.display = "none"
+            if (user) user.style.display = "flex";
         }
     }
 
@@ -334,6 +337,27 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ===============================
+    // VALIDAZIONE DESTINAZIONE (Nominatim / OpenStreetMap)
+    // ===============================
+
+    async function validaCitta(nome) {
+        if (!nome || nome.length < 2) return false;
+        try {
+            const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(nome)}&format=json&limit=5&featuretype=city,town,village`;
+            const res = await fetch(url, { headers: { "Accept-Language": "it" } });
+            const risultati = await res.json();
+            return risultati.some(r =>
+                ["city", "town", "village", "municipality", "administrative"].includes(r.type) ||
+                r.class === "place"
+            );
+        } catch (e) {
+            // Se Nominatim non è raggiungibile (es. rete scolastica), lascia passare
+            console.warn("Nominatim non raggiungibile, skip validazione:", e);
+            return true;
+        }
+    }
+
+    // ===============================
     // PAGINA PRENOTA: logica prenotazione
     // ===============================
 
@@ -372,6 +396,35 @@ document.addEventListener("DOMContentLoaded", () => {
             window.location.href = "accedi.html";
         } else {
             selectStelle(3); // default stelle = 3
+
+            // Feedback in tempo reale mentre si digita la destinazione
+            const inputDest = document.getElementById("destinazione");
+            if (inputDest) {
+                let debounceTimer;
+                inputDest.addEventListener("input", () => {
+                    clearTimeout(debounceTimer);
+                    const val = inputDest.value.trim();
+                    const feedback = document.getElementById("dest-feedback");
+                    if (!feedback) return;
+                    if (val.length < 2) {
+                        feedback.textContent = "";
+                        feedback.style.color = "";
+                        return;
+                    }
+                    feedback.textContent = "⏳ Verifico...";
+                    feedback.style.color = "gray";
+                    debounceTimer = setTimeout(async () => {
+                        const ok = await validaCitta(val);
+                        if (ok) {
+                            feedback.textContent = "✅ Città riconosciuta";
+                            feedback.style.color = "green";
+                        } else {
+                            feedback.textContent = "⚠️ Città non trovata, controlla il nome";
+                            feedback.style.color = "orange";
+                        }
+                    }, 600);
+                });
+            }
         }
     }
 
@@ -393,6 +446,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!destinazione || !dataAndata || !dataRitorno) {
             alert("Compila tutti i campi obbligatori.");
+            return;
+        }
+
+        // Valida che la destinazione sia una città reale
+        const cittaValida = await validaCitta(destinazione);
+        if (!cittaValida) {
+            alert(`⚠️ "${destinazione}" non sembra una città valida. Controlla il nome e riprova.`);
             return;
         }
 
@@ -484,6 +544,16 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error("Errore caricamento recensioni:", err);
         }
     }
+
+    //mappa index//
+
+    var map = L.map('map').setView([45.62928126111086, 9.021469519511175], 17);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+    var marker = L.marker([45.62928126111086, 9.021469519511175]).addTo(map);
+    marker.bindPopup("<b>Sede TripMood</b><br>la nostra sede ufficiale!").openPopup();
 
     async function inviaRecensione() {
         const idUtente = localStorage.getItem("utenteId");
