@@ -155,7 +155,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (data.status === "ok") {
                     localStorage.setItem("utenteId", data.utente.id);
                     localStorage.setItem("username", data.utente.username);
-                    // Ricarica il piano dal DB
                     if (data.utente.piano) {
                         localStorage.setItem("piano", data.utente.piano);
                     } else {
@@ -508,7 +507,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        // Aggiorna prezzi e badge in base all'abbonamento
         if (idUtente && piano && PIANI_CONFIG[piano]) {
             const sconto = PIANI_CONFIG[piano].sconto;
             const colore = PIANI_CONFIG[piano].colore;
@@ -637,14 +635,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const cfg = PIANI_CONFIG[piano];
 
-        // Salva sul DB
         fetch(`${API_BASE}/utente/${idUtente}/piano`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ piano: piano }),
         }).catch(err => console.error("Errore salvataggio piano:", err));
 
-        // Salva in locale
         localStorage.setItem("piano", piano);
 
         const msg = document.getElementById("abbonamenti-msg");
@@ -716,17 +712,8 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     // ===============================
-    // RECENSIONI (frontend generico)
+    // RECENSIONI
     // ===============================
-
-    if (window.location.pathname.toLowerCase().includes("recenzioni.html")) {
-        caricaUltimeRecensioni();
-
-        const btnInviaRec = document.getElementById("btn-invia-recensione");
-        if (btnInviaRec) {
-            btnInviaRec.addEventListener("click", inviaRecensione);
-        }
-    }
 
     async function caricaUltimeRecensioni() {
         const container = document.getElementById("rec-list");
@@ -759,18 +746,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // ===============================
-    // MAPPA INDEX
-    // ===============================
-
-    var map = L.map('map').setView([45.62928126111086, 9.021469519511175], 17);
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(map);
-    var marker = L.marker([45.62928126111086, 9.021469519511175]).addTo(map);
-    marker.bindPopup("<b>Sede TripMood</b><br>la nostra sede ufficiale!").openPopup();
-
     async function inviaRecensione() {
         const idUtente = localStorage.getItem("utenteId");
         if (!idUtente) {
@@ -793,7 +768,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({
-                    utenteId,
+                    utenteId: idUtente,
                     destinazione,
                     testo,
                     stelle
@@ -812,6 +787,29 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error(err);
             alert("Errore di connessione");
         }
+    }
+
+    if (window.location.pathname.toLowerCase().includes("recenzioni.html")) {
+        caricaUltimeRecensioni();
+
+        const btnInviaRec = document.getElementById("btn-invia-recensione");
+        if (btnInviaRec) {
+            btnInviaRec.addEventListener("click", inviaRecensione);
+        }
+    }
+
+    // ===============================
+    // MAPPA INDEX (solo se presente)
+    // ===============================
+
+    if (document.getElementById("map")) {
+        var map = L.map('map').setView([45.62928126111086, 9.021469519511175], 17);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+        var marker = L.marker([45.62928126111086, 9.021469519511175]).addTo(map);
+        marker.bindPopup("<b>Sede TripMood</b><br>la nostra sede ufficiale!").openPopup();
     }
 
 });
