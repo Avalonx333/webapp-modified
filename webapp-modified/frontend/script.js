@@ -4,7 +4,6 @@
 
 const API_BASE = "http://localhost:8080/api";
 
-// Mappa piani → colore nome e sconto
 const PIANI_CONFIG = {
     Base:    { colore: "#27ae60", sconto: 5  },
     Plus:    { colore: "#2980b9", sconto: 15 },
@@ -14,7 +13,7 @@ const PIANI_CONFIG = {
 document.addEventListener("DOMContentLoaded", () => {
 
     // ===============================
-    // HEADER: MOSTRA NOME UTENTE + "I MIEI VIAGGI"
+    // HEADER LOGIN / LOGOUT
     // ===============================
 
     const username = localStorage.getItem("username");
@@ -44,13 +43,10 @@ document.addEventListener("DOMContentLoaded", () => {
             window.location.href = "index.html";
         });
 
-        if (linkMieiViaggi) {
-            linkMieiViaggi.style.display = "inline-block";
-        }
+        if (linkMieiViaggi) linkMieiViaggi.style.display = "inline-block";
+
     } else {
-        if (linkMieiViaggi) {
-            linkMieiViaggi.style.display = "none";
-        }
+        if (linkMieiViaggi) linkMieiViaggi.style.display = "none";
     }
 
     // =====================
@@ -172,10 +168,39 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ===============================
-    // PAGINA VIAGGI: guest vs user
+    // PAGINA VIAGGI
     // ===============================
+    function prenotaGruppo(tipoViaggio) {
+        const utente = localStorage.getItem("utenteLoggato");
 
-    if (document.body.id === "viaggi" && window.location.pathname.toLowerCase().includes("viaggi.html")) {
+        if (!utente) {
+            alert("Devi effettuare il login per prenotare un viaggio");
+            window.location.href = "login.html";
+            return;
+        }
+
+        fetch("http://localhost:8080/api/prenotazioni/gruppo", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                email: utente,
+                viaggio: tipoViaggio
+            })
+        })
+            .then(res => {
+                if (!res.ok) throw new Error("Errore nella prenotazione");
+                return res.text();
+            })
+            .then(msg => {
+                alert("Prenotazione effettuata! Controlla la tua email.");
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Errore durante la prenotazione");
+            });
+    }
+
+    if (window.location.pathname.toLowerCase().includes("viaggi.html")) {
         const idUtente = localStorage.getItem("utenteId");
         const guest = document.getElementById("viaggi-guest");
         const user = document.getElementById("viaggi-user");
@@ -190,10 +215,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ===============================
-    // PAGINA STORICO VIAGGI
+    // PAGINA STORICO
     // ===============================
 
-    if (document.body.id === "viaggi" && window.location.pathname.toLowerCase().includes("storico.html")) {
+    if (window.location.pathname.toLowerCase().includes("storico.html")) {
         const idUtente = localStorage.getItem("utenteId");
         if (!idUtente) {
             alert("Devi effettuare l'accesso per vedere lo storico.");
@@ -203,240 +228,274 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    async function caricaStoricoViaggi() {
-        const idUtente = localStorage.getItem("utenteId");
-        if (!idUtente) return;
+});
 
-        try {
-            const res = await fetch(`${API_BASE}/miei-viaggi/${idUtente}`);
-            const data = await res.json();
+// ===============================
+// FUNZIONI STORICO
+// ===============================
 
+function caricaStoricoViaggi() {
+    const idUtente = localStorage.getItem("utenteId");
+    if (!idUtente) return;
+
+    fetch(`${API_BASE}/miei-viaggi/${idUtente}`)
+        .then(r => r.json())
+        .then(data => {
             if (data.status !== "ok") return;
-
             generaStorico(data.viaggi);
             aggiornaStatistiche(data.viaggi);
             popolaFiltriAnni(data.viaggi);
             inizializzaMappaStorico(data.viaggi);
+        })
+        .catch(err => console.error(err));
+}
 
-        } catch (err) {
-            console.error("Errore:", err);
-        }
+function generaStorico(lista) {
+    const container = document.getElementById("storico-lista");
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    if (!lista || lista.length === 0) {
+        container.innerHTML = `<p class="vuoto">Non hai ancora effettuato viaggi.</p>`;
+        return;
     }
 
-    function generaStorico(lista) {
-        const container = document.getElementById("storico-lista");
-        if (!container) return;
-        container.innerHTML = "";
+    lista.forEach(v => {
+        const anno = new Date(v.dataAndata).getFullYear();
 
-        if (!lista || lista.length === 0) {
-            container.innerHTML = `<p class="vuoto">Non hai ancora effettuato viaggi.</p>`;
-            return;
-        }
-
-        lista.forEach(v => {
-            const anno = new Date(v.dataAndata).getFullYear();
-
-            container.innerHTML += `
-                <div class="subpage-card storico-card" data-anno="${anno}">
-                    <div class="storico-header">
-                        <span class="storico-dest"><i class="fa-solid fa-location-dot"></i> ${v.destinazione}</span>
-                        <span class="storico-anno">${anno}</span>
-                    </div>
-                    <p class="storico-date">
-                        <i class="fa-regular fa-calendar"></i>
-                        ${formattaData(v.dataAndata)} – ${formattaData(v.dataRitorno)}
-                    </p>
-                    <p class="storico-info">
-                        👥 ${v.adulti || 1} adulti &nbsp;|&nbsp;
-                        🏨 ${v.stelle || 3} stelle &nbsp;|&nbsp;
-                        🏖 ${v.tipo || "Viaggio"}
-                    </p>
+        container.innerHTML += `
+            <div class="subpage-card storico-card" data-anno="${anno}">
+                <div class="storico-header">
+                    <span class="storico-dest"><i class="fa-solid fa-location-dot"></i> ${v.destinazione}</span>
+                    <span class="storico-anno">${anno}</span>
                 </div>
-            `;
-        });
+                <p class="storico-date">
+                    <i class="fa-regular fa-calendar"></i>
+                    ${formattaData(v.dataAndata)} – ${formattaData(v.dataRitorno)}
+                </p>
+                <p class="storico-info">
+                    👥 ${v.adulti || 1} adulti &nbsp;|&nbsp;
+                    🏨 ${v.stelle || 3} stelle &nbsp;|&nbsp;
+                    🏖 ${v.tipo || "Viaggio"}
+                </p>
+            </div>
+        `;
+    });
+}
+
+function aggiornaStatistiche(lista) {
+    const statTotale = document.getElementById("stat-totale");
+    const statPaesi = document.getElementById("stat-paesi");
+    const statGiorni = document.getElementById("stat-giorni");
+    if (!lista || !statTotale || !statPaesi || !statGiorni) return;
+
+    statTotale.textContent = lista.length;
+
+    let giorniTotali = 0;
+    let paesi = new Set();
+
+    lista.forEach(v => {
+        const start = new Date(v.dataAndata);
+        const end = new Date(v.dataRitorno);
+        giorniTotali += (end - start) / (1000 * 60 * 60 * 24);
+        paesi.add(v.destinazione);
+    });
+
+    statPaesi.textContent = paesi.size;
+    statGiorni.textContent = giorniTotali;
+}
+
+function popolaFiltriAnni(lista) {
+    const filtro = document.getElementById("filtro-anni");
+    if (!filtro || !lista) return;
+
+    const anni = new Set();
+    lista.forEach(v => anni.add(new Date(v.dataAndata).getFullYear()));
+
+    filtro.innerHTML = "";
+
+    const btnTutti = document.createElement("button");
+    btnTutti.className = "filtro-btn active";
+    btnTutti.textContent = "Tutti";
+    btnTutti.onclick = () => filtraAnno('tutti', btnTutti);
+    filtro.appendChild(btnTutti);
+
+    Array.from(anni).sort((a, b) => b - a).forEach(anno => {
+        const btn = document.createElement("button");
+        btn.className = "filtro-btn";
+        btn.textContent = anno;
+        btn.onclick = () => filtraAnno(String(anno), btn);
+        filtro.appendChild(btn);
+    });
+}
+
+window.filtraAnno = function (anno, btn) {
+    const cards = document.querySelectorAll(".storico-card");
+    cards.forEach(c => {
+        const cardAnno = c.getAttribute("data-anno");
+        c.style.display = (anno === "tutti" || cardAnno === anno) ? "flex" : "none";
+    });
+
+    document.querySelectorAll(".filtro-btn").forEach(b => b.classList.remove("active"));
+    if (btn) btn.classList.add("active");
+};
+
+function inizializzaMappaStorico(lista) {
+    const mapDiv = document.getElementById("map-storico");
+    if (!mapDiv || !window.L || !lista || lista.length === 0) return;
+
+    const map = L.map("map-storico").setView([20, 0], 2);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 18,
+        attribution: "&copy; OpenStreetMap"
+    }).addTo(map);
+
+    lista.forEach(v => {
+        const lat = (Math.random() * 140) - 70;
+        const lng = (Math.random() * 360) - 180;
+        L.marker([lat, lng]).addTo(map)
+            .bindPopup(`<b>${v.destinazione}</b><br>${formattaData(v.dataAndata)} – ${formattaData(v.dataRitorno)}`);
+    });
+}
+
+function formattaData(data) {
+    const d = new Date(data);
+    return d.toLocaleDateString("it-IT", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+// ===============================
+// FUNZIONI PRENOTA (DEVONO STARE PRIMA DI QUALSIASI CHIAMATA)
+// ===============================
+
+window.selectStelle = function (n) {
+    const stelle = document.querySelectorAll("#stelle-selector .stella");
+    stelle.forEach(s => {
+        const val = parseInt(s.dataset.val);
+        s.classList.toggle("attiva", val <= n);
+    });
+    document.body.dataset.stelleSelezionate = n;
+};
+
+window.changeCount = function (tipo, delta) {
+    const span = document.getElementById(`count-${tipo}`);
+    if (!span) return;
+
+    let val = parseInt(span.textContent, 10);
+    val += delta;
+
+    if (tipo === "adulti" && val < 1) val = 1;
+    if (tipo === "bambini" && val < 0) val = 0;
+
+    span.textContent = val;
+};
+
+window.prenotaViaggio = async function () {
+
+    const idUtente = localStorage.getItem("utenteId");
+    if (!idUtente) {
+        alert("Devi effettuare l'accesso per prenotare.");
+        window.location.href = "accedi.html";
+        return;
     }
 
-    function aggiornaStatistiche(lista) {
-        const statTotale = document.getElementById("stat-totale");
-        const statPaesi = document.getElementById("stat-paesi");
-        const statGiorni = document.getElementById("stat-giorni");
-        if (!lista || !statTotale || !statPaesi || !statGiorni) return;
+    const destinazione = document.getElementById("destinazione").value.trim();
+    const dataAndata = document.getElementById("data-partenza").value;
+    const dataRitorno = document.getElementById("data-ritorno").value;
+    const adulti = parseInt(document.getElementById("count-adulti").textContent);
+    const bambini = parseInt(document.getElementById("count-bambini").textContent);
+    const tipo = document.querySelector("input[name='tipo']:checked").value;
+    const stelle = parseInt(document.body.dataset.stelleSelezionate || "3");
 
-        statTotale.textContent = lista.length;
-
-        let giorniTotali = 0;
-        let paesi = new Set();
-
-        lista.forEach(v => {
-            const start = new Date(v.dataAndata);
-            const end = new Date(v.dataRitorno);
-            giorniTotali += (end - start) / (1000 * 60 * 60 * 24);
-            paesi.add(v.destinazione);
-        });
-
-        statPaesi.textContent = paesi.size;
-        statGiorni.textContent = giorniTotali;
+    if (!destinazione || !dataAndata || !dataRitorno) {
+        alert("Compila tutti i campi obbligatori.");
+        return;
     }
 
-    function popolaFiltriAnni(lista) {
-        const filtro = document.getElementById("filtro-anni");
-        if (!filtro || !lista) return;
-
-        const anni = new Set();
-        lista.forEach(v => {
-            const anno = new Date(v.dataAndata).getFullYear();
-            anni.add(anno);
+    try {
+        const res = await fetch(`${API_BASE}/prenota`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                utenteId,
+                destinazione,
+                dataAndata,
+                dataRitorno,
+                adulti,
+                bambini,
+                tipo,
+                stelle
+            }),
         });
 
-        filtro.innerHTML = "";
-        const btnTutti = document.createElement("button");
-        btnTutti.className = "filtro-btn active";
-        btnTutti.textContent = "Tutti";
-        btnTutti.onclick = () => filtraAnno('tutti', btnTutti);
-        filtro.appendChild(btnTutti);
+        const data = await res.json();
 
-        Array.from(anni).sort((a, b) => b - a).forEach(anno => {
-            const btn = document.createElement("button");
-            btn.className = "filtro-btn";
-            btn.textContent = anno;
-            btn.onclick = () => filtraAnno(String(anno), btn);
-            filtro.appendChild(btn);
-        });
-    }
-
-    window.filtraAnno = function (anno, btn) {
-        const cards = document.querySelectorAll(".storico-card");
-        cards.forEach(c => {
-            const cardAnno = c.getAttribute("data-anno");
-            if (anno === "tutti" || cardAnno === anno) {
-                c.style.display = "flex";
-            } else {
-                c.style.display = "none";
-            }
-        });
-
-        document.querySelectorAll(".filtro-btn").forEach(b => b.classList.remove("active"));
-        if (btn) btn.classList.add("active");
-    };
-
-    function inizializzaMappaStorico(lista) {
-        const mapDiv = document.getElementById("map-storico");
-        if (!mapDiv || !window.L || !lista || lista.length === 0) return;
-
-        const map = L.map("map-storico").setView([20, 0], 2);
-
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            maxZoom: 18,
-            attribution: "&copy; OpenStreetMap"
-        }).addTo(map);
-
-        lista.forEach(v => {
-            const lat = (Math.random() * 140) - 70;
-            const lng = (Math.random() * 360) - 180;
-            L.marker([lat, lng]).addTo(map)
-                .bindPopup(`<b>${v.destinazione}</b><br>${formattaData(v.dataAndata)} – ${formattaData(v.dataRitorno)}`);
-        });
-    }
-
-    function formattaData(data) {
-        const d = new Date(data);
-        return d.toLocaleDateString("it-IT", { day: "2-digit", month: "short", year: "numeric" });
-    }
-
-    // ===============================
-    // PAGINA PRENOTA: logica prenotazione
-    // ===============================
-
-    if (document.body.id === "viaggi" && window.location.pathname.toLowerCase().includes("prenota.html")) {
-        const idUtente = localStorage.getItem("utenteId");
-        if (!idUtente) {
-            alert("Devi effettuare l'accesso per prenotare un viaggio.");
-            window.location.href = "accedi.html";
+        if (data.status === "ok") {
+            alert("Prenotazione effettuata con successo!");
+            window.location.href = "Storico.html";
         } else {
-            selectStelle(3);
+            alert(data.messaggio || "Errore nella prenotazione");
         }
+
+    } catch (err) {
+        console.error(err);
+        alert("Errore di connessione");
+    }
+};
+
+window.prenotaGruppo = async function (nomePacchetto) {
+    const idUtente = localStorage.getItem("utenteId");
+    if (!idUtente) {
+        alert("Devi effettuare l'accesso per prenotare.");
+        window.location.href = "accedi.html";
+        return;
     }
 
-    window.changeCount = function (tipo, delta) {
-        const span = document.getElementById(`count-${tipo}`);
-        if (!span) return;
-        let val = parseInt(span.textContent, 10);
-        val += delta;
-        if (tipo === "adulti" && val < 1) val = 1;
-        if (tipo === "bambini" && val < 0) val = 0;
-        span.textContent = val;
-    };
+    const tipoGruppo = document.querySelector("input[name='gruppo']:checked")?.value || "coppia";
 
-    window.selectStelle = function (n) {
-        const stelle = document.querySelectorAll("#stelle-selector .stella");
-        stelle.forEach(s => {
-            const val = parseInt(s.getAttribute("data-val"), 10);
-            if (val <= n) {
-                s.classList.add("attiva");
-            } else {
-                s.classList.remove("attiva");
-            }
+    const oggi = new Date();
+    const partenza = new Date(oggi);
+    partenza.setDate(oggi.getDate() + 30);
+    const ritorno = new Date(partenza);
+    ritorno.setDate(partenza.getDate() + 7);
+    const fmt = d => d.toISOString().split("T")[0];
+
+    const adultiMap = { coppia: 2, famiglia: 4, amici: 8, corporate: 15 };
+    const adulti = adultiMap[tipoGruppo] || 2;
+
+    try {
+        const res = await fetch(`${API_BASE}/prenota`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                utenteId,
+                destinazione: nomePacchetto,
+                dataAndata: fmt(partenza),
+                dataRitorno: fmt(ritorno),
+                adulti,
+                bambini: 0,
+                tipo: tipoGruppo,
+                stelle: 3
+            }),
         });
-        const label = document.getElementById("stelle-label");
-        if (label) {
-            label.textContent = `${n} stelle selezionate`;
-        }
-        document.body.dataset.stelleSelezionate = n;
-    };
 
-    window.prenotaViaggio = async function () {
-        const idUtente = localStorage.getItem("utenteId");
-        if (!idUtente) {
-            alert("Devi effettuare l'accesso per prenotare.");
-            window.location.href = "accedi.html";
-            return;
+        const data = await res.json();
+
+        if (data.status === "ok") {
+            alert("Prenotazione gruppo effettuata!");
+            window.location.href = "Storico.html";
+        } else {
+            alert(data.messaggio || "Errore nella prenotazione");
         }
 
-        const destinazione = document.getElementById("destinazione")?.value.trim();
-        const dataAndata = document.getElementById("data-partenza")?.value;
-        const dataRitorno = document.getElementById("data-ritorno")?.value;
-        const adulti = parseInt(document.getElementById("count-adulti")?.textContent || "1", 10);
-        const bambini = parseInt(document.getElementById("count-bambini")?.textContent || "0", 10);
-        const tipo = document.querySelector("input[name='tipo']:checked")?.value || "viaggio";
-        const stelle = parseInt(document.body.dataset.stelleSelezionate || "3", 10);
+    } catch (err) {
+        console.error(err);
+        alert("Errore di connessione");
+    }
+};
 
-        if (!destinazione || !dataAndata || !dataRitorno) {
-            alert("Compila tutti i campi obbligatori.");
-            return;
-        }
-
-        try {
-            const res = await fetch(`${API_BASE}/prenota`, {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({
-                    utenteId: idUtente,
-                    destinazione,
-                    dataAndata,
-                    dataRitorno,
-                    adulti,
-                    bambini,
-                    tipo,
-                    stelle
-                }),
-            });
-
-            const data = await res.json();
-
-            if (data.status === "ok") {
-                alert("Prenotazione effettuata con successo!");
-                window.location.href = "Storico.html";
-            } else {
-                alert(data.messaggio || "Errore nella prenotazione");
-            }
-
-        } catch (err) {
-            console.error(err);
-            alert("Errore di connessione");
-        }
-    };
-
-    // ===============================
+// ===============================
     // PRENOTAZIONE GRUPPO
     // ===============================
 
@@ -811,5 +870,3 @@ document.addEventListener("DOMContentLoaded", () => {
         var marker = L.marker([45.62928126111086, 9.021469519511175]).addTo(map);
         marker.bindPopup("<b>Sede TripMood</b><br>la nostra sede ufficiale!").openPopup();
     }
-
-});
