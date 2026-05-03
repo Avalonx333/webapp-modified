@@ -4,6 +4,13 @@
 
 const API_BASE = "http://localhost:8080/api";
 
+// Mappa piani → colore nome e sconto
+const PIANI_CONFIG = {
+    Base:    { colore: "#27ae60", sconto: 5  },
+    Plus:    { colore: "#2980b9", sconto: 15 },
+    Premium: { colore: "#f39c12", sconto: 40 },
+};
+
 document.addEventListener("DOMContentLoaded", () => {
 
     // ===============================
@@ -19,6 +26,13 @@ document.addEventListener("DOMContentLoaded", () => {
         linkAccedi.textContent = "Ciao, " + username;
         linkAccedi.removeAttribute("href");
 
+        const pianoAttivo = localStorage.getItem("piano");
+        if (pianoAttivo && PIANI_CONFIG[pianoAttivo]) {
+            linkAccedi.style.color = PIANI_CONFIG[pianoAttivo].colore;
+            linkAccedi.style.fontWeight = "bold";
+            linkAccedi.title = "Piano " + pianoAttivo;
+        }
+
         linkRegistrati.textContent = "Logout";
         linkRegistrati.href = "#";
 
@@ -26,6 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
             e.preventDefault();
             localStorage.removeItem("utenteId");
             localStorage.removeItem("username");
+            localStorage.removeItem("piano");
             window.location.href = "index.html";
         });
 
@@ -140,6 +155,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (data.status === "ok") {
                     localStorage.setItem("utenteId", data.utente.id);
                     localStorage.setItem("username", data.utente.username);
+                    // Ricarica il piano dal DB
+                    if (data.utente.piano) {
+                        localStorage.setItem("piano", data.utente.piano);
+                    } else {
+                        localStorage.removeItem("piano");
+                    }
                     window.location.href = "index.html";
                 } else {
                     alert("Credenziali errate");
@@ -311,7 +332,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }).addTo(map);
 
         lista.forEach(v => {
-            // qui potresti usare un geocoding vero; per ora placeholder random
             const lat = (Math.random() * 140) - 70;
             const lng = (Math.random() * 360) - 180;
             L.marker([lat, lng]).addTo(map)
@@ -334,7 +354,7 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("Devi effettuare l'accesso per prenotare un viaggio.");
             window.location.href = "accedi.html";
         } else {
-            selectStelle(3); // default
+            selectStelle(3);
         }
     }
 
@@ -418,6 +438,270 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     // ===============================
+    // PRENOTAZIONE GRUPPO
+    // ===============================
+
+    window.prenotaGruppo = async function (nomePacchetto) {
+        const idUtente = localStorage.getItem("utenteId");
+        if (!idUtente) {
+            alert("Devi effettuare l'accesso per prenotare.");
+            window.location.href = "accedi.html";
+            return;
+        }
+
+        const tipoGruppo = document.querySelector("input[name='gruppo']:checked")?.value || "coppia";
+
+        const oggi = new Date();
+        const partenza = new Date(oggi);
+        partenza.setDate(oggi.getDate() + 30);
+        const ritorno = new Date(partenza);
+        ritorno.setDate(partenza.getDate() + 7);
+        const fmt = d => d.toISOString().split("T")[0];
+
+        const adultiMap = { coppia: 2, famiglia: 4, amici: 8, corporate: 15 };
+        const adulti = adultiMap[tipoGruppo] || 2;
+
+        try {
+            const res = await fetch(`${API_BASE}/prenota`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    utenteId: idUtente,
+                    destinazione: "Destinazione a sorpresa – " + nomePacchetto,
+                    partenza: "Italia",
+                    albergo: "Da definire",
+                    dataAndata: fmt(partenza),
+                    dataRitorno: fmt(ritorno),
+                    adulti: adulti,
+                    bambini: 0,
+                    tipo: "Gruppo – " + tipoGruppo,
+                    stelle: 4
+                }),
+            });
+
+            const data = await res.json();
+
+            if (data.status === "ok") {
+                alert("✅ Prenotazione gruppo confermata!\nRiceverai una email di conferma a breve.");
+                window.location.href = "Storico.html";
+            } else {
+                alert(data.messaggio || "Errore nella prenotazione");
+            }
+
+        } catch (err) {
+            console.error(err);
+            alert("Errore di connessione");
+        }
+    };
+
+    // ===============================
+    // PRENOTAZIONE SCONTI
+    // ===============================
+
+    if (window.location.pathname.toLowerCase().includes("sconti.html")) {
+        const idUtente = localStorage.getItem("utenteId");
+        const piano = localStorage.getItem("piano");
+
+        document.querySelectorAll(".sconto-btn-wrap").forEach(wrap => {
+            if (!idUtente) {
+                wrap.innerHTML = `<a href="accedi.html" class="prenota-btn" style="text-align:center;text-decoration:none;">Accedi</a>`;
+            }
+        });
+
+        // Aggiorna prezzi e badge in base all'abbonamento
+        if (idUtente && piano && PIANI_CONFIG[piano]) {
+            const sconto = PIANI_CONFIG[piano].sconto;
+            const colore = PIANI_CONFIG[piano].colore;
+
+            document.querySelectorAll(".sconto-card").forEach(card => {
+                const prezzoEl = card.querySelector(".sconto-nuovo");
+                if (!prezzoEl) return;
+
+                const prezzoTesto = prezzoEl.textContent.replace(/[€\s.]/g, "").replace(",", ".");
+                const prezzoBase = parseFloat(prezzoTesto);
+                if (isNaN(prezzoBase)) return;
+
+                const prezzoFinale = Math.round(prezzoBase * (1 - sconto / 100));
+                prezzoEl.textContent = "€ " + prezzoFinale.toLocaleString("it-IT");
+
+                const badge = card.querySelector(".sconto-badge");
+                if (badge) {
+                    const scontoOriginale = parseInt(badge.textContent.replace(/[^0-9]/g, ""), 10);
+                    const scontoTotale = Math.min(scontoOriginale + sconto, 99);
+                    badge.textContent = "−" + scontoTotale + "%";
+                    badge.style.backgroundColor = colore;
+                }
+
+                let label = card.querySelector(".sconto-piano-label");
+                if (!label) {
+                    label = document.createElement("p");
+                    label.className = "sconto-piano-label";
+                    label.style.cssText = `font-size:11px; font-weight:bold; color:${colore}; margin:2px 0 6px;`;
+                    prezzoEl.insertAdjacentElement("afterend", label);
+                }
+                label.textContent = `✓ Piano ${piano}: −${sconto}% extra applicato`;
+            });
+        }
+    }
+
+    window.prenotaSconto = async function (destinazione) {
+        const idUtente = localStorage.getItem("utenteId");
+        if (!idUtente) {
+            window.location.href = "accedi.html";
+            return;
+        }
+
+        const oggi = new Date();
+        const partenza = new Date(oggi);
+        partenza.setDate(oggi.getDate() + 14);
+        const ritorno = new Date(partenza);
+        ritorno.setDate(partenza.getDate() + 7);
+        const fmt = d => d.toISOString().split("T")[0];
+
+        try {
+            const res = await fetch(`${API_BASE}/prenota`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    utenteId: idUtente,
+                    destinazione: destinazione,
+                    partenza: "Italia",
+                    albergo: "Da definire",
+                    dataAndata: fmt(partenza),
+                    dataRitorno: fmt(ritorno),
+                    adulti: 2,
+                    bambini: 0,
+                    tipo: "Viaggio scontato",
+                    stelle: 4
+                }),
+            });
+
+            const data = await res.json();
+
+            if (data.status === "ok") {
+                const piano = localStorage.getItem("piano");
+                const extraMsg = piano ? ` (sconto piano ${piano} incluso)` : "";
+                alert(`✅ Prenotazione confermata!${extraMsg}\nRiceverai una email di conferma a breve.`);
+                window.location.href = "Storico.html";
+            } else {
+                alert(data.messaggio || "Errore nella prenotazione");
+            }
+
+        } catch (err) {
+            console.error(err);
+            alert("Errore di connessione");
+        }
+    };
+
+    // ===============================
+    // ABBONAMENTI
+    // ===============================
+
+    if (window.location.pathname.toLowerCase().includes("abbonamenti.html")) {
+        const idUtente = localStorage.getItem("utenteId");
+        const pianoAttivo = localStorage.getItem("piano");
+        const msg = document.getElementById("abbonamenti-msg");
+
+        if (!idUtente) {
+            ["btn-base", "btn-plus", "btn-premium"].forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) {
+                    btn.textContent = "Accedi per abbonarti";
+                    btn.onclick = () => { window.location.href = "accedi.html"; };
+                }
+            });
+        }
+
+        if (pianoAttivo && PIANI_CONFIG[pianoAttivo]) {
+            const cfg = PIANI_CONFIG[pianoAttivo];
+            if (msg) {
+                msg.textContent = `✅ Sei abbonato al piano ${pianoAttivo} — sconto ${cfg.sconto}% su tutte le prenotazioni`;
+                msg.style.color = cfg.colore;
+                msg.style.fontWeight = "bold";
+            }
+            const btnAttivo = document.getElementById("btn-" + pianoAttivo.toLowerCase());
+            if (btnAttivo) {
+                btnAttivo.textContent = "✓ Piano attivo";
+                btnAttivo.style.backgroundColor = cfg.colore;
+                btnAttivo.disabled = true;
+            }
+        }
+    }
+
+    window.scegli = function (piano) {
+        const idUtente = localStorage.getItem("utenteId");
+        if (!idUtente) {
+            window.location.href = "accedi.html";
+            return;
+        }
+
+        const cfg = PIANI_CONFIG[piano];
+
+        // Salva sul DB
+        fetch(`${API_BASE}/utente/${idUtente}/piano`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ piano: piano }),
+        }).catch(err => console.error("Errore salvataggio piano:", err));
+
+        // Salva in locale
+        localStorage.setItem("piano", piano);
+
+        const msg = document.getElementById("abbonamenti-msg");
+        if (msg) {
+            msg.textContent = `✅ Piano ${piano} attivato! Hai il ${cfg.sconto}% di sconto su tutte le prenotazioni.`;
+            msg.style.color = cfg.colore;
+            msg.style.fontWeight = "bold";
+        }
+
+        ["Base", "Plus", "Premium"].forEach(p => {
+            const btn = document.getElementById("btn-" + p.toLowerCase());
+            if (!btn) return;
+            if (p === piano) {
+                btn.textContent = "✓ Piano attivo";
+                btn.style.backgroundColor = cfg.colore;
+                btn.disabled = true;
+            } else {
+                btn.disabled = false;
+                btn.style.backgroundColor = "";
+                btn.textContent = p === "Base" ? "Inizia ora" : "Scegli " + p;
+            }
+        });
+
+        const linkAccedi = document.getElementById("link-accedi");
+        if (linkAccedi) {
+            linkAccedi.style.color = cfg.colore;
+            linkAccedi.style.fontWeight = "bold";
+            linkAccedi.title = "Piano " + piano;
+        }
+
+        alert(`🎉 Piano ${piano} attivato!\nSconto ${cfg.sconto}% applicato a tutte le prenotazioni.\nTornando alla home vedrai il tuo nome colorato.`);
+    };
+
+    window.setFatturazione = function (tipo, btn) {
+        document.querySelectorAll(".filtro-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        const prezzi = {
+            mensile: { base: "€ 4,99", plus: "€ 9,99",  premium: "€ 19,99" },
+            annuale: { base: "€ 3,99", plus: "€ 7,99",  premium: "€ 15,99" },
+        };
+        const p = prezzi[tipo];
+        const el = (id) => document.getElementById(id);
+        if (el("prezzo-base"))    el("prezzo-base").textContent    = p.base;
+        if (el("prezzo-plus"))    el("prezzo-plus").textContent    = p.plus;
+        if (el("prezzo-premium")) el("prezzo-premium").textContent = p.premium;
+    };
+
+    window.toggleFaq = function (el) {
+        const answer = el.nextElementSibling;
+        const icon = el.querySelector("i");
+        const isOpen = answer.style.display === "block";
+        answer.style.display = isOpen ? "none" : "block";
+        if (icon) icon.style.transform = isOpen ? "rotate(0deg)" : "rotate(180deg)";
+    };
+
+    // ===============================
     // NAVIGAZIONE UTENTE LOGGATO
     // ===============================
 
@@ -475,7 +759,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    //mappa index//
+    // ===============================
+    // MAPPA INDEX
+    // ===============================
+
     var map = L.map('map').setView([45.62928126111086, 9.021469519511175], 17);
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
@@ -483,8 +770,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }).addTo(map);
     var marker = L.marker([45.62928126111086, 9.021469519511175]).addTo(map);
     marker.bindPopup("<b>Sede TripMood</b><br>la nostra sede ufficiale!").openPopup();
-
-
 
     async function inviaRecensione() {
         const idUtente = localStorage.getItem("utenteId");

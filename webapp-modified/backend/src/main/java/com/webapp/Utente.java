@@ -11,11 +11,18 @@ public class Utente {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    private String piano;
     private String username;
     private String email;
     private String password;
 
+    public void setPiano(String piano) {
+        this.piano = piano;
+    }
+
+    public String getPiano() {
+        return piano;
+    }
 
     public String getUsername() {
         return username;
