@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Homepage</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://kit.fontawesome.com/12df662af6.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+</head>
+
+<body id="homepage">
+
+<div id="accesso">
+    <nav id="cs-nav">
+        <div id="nav-user" style="display:none;">
+            <span id="nav-username">👤</span>
+            <span id="nav-abbonamento"></span>
+        </div>
+    </nav>
+</div>
+    <img src="img/TripMood.png" id="img1">
+
+    <div id="rating">
+        <i class="fa-solid fa-star"></i>
+        <i class="fa-solid fa-star"></i>
+        <i class="fa-solid fa-star"></i>
+        <i class="fa-solid fa-star"></i>
+        <i class="fa-solid fa-star-half-stroke"></i>
+    </div>
+</div>
+
+<div id="cuerpos">
+    <div class="home-grid">
+        <a href="chiSiamo.html" class="home-card">
+            <img src="img/431424652-18198720184305038-8168865094858402591-n_2_366484-171040057426791.jpeg"
+                 class="home-card-img">
+            <div class="home-card-label">
+                <i class="fa-solid fa-users home-card-icon"></i>
+                <h4>Chi Siamo &#x1F303;</h4>
+            </div>
+        </a>
+
+        <a href="recenzioni.html" class="home-card">
+            <img src="img/431537872-18198952702305038-7448617207685082451-n_2_366484-171040058752792.jpeg"
+                 class="home-card-img">
+            <div class="home-card-label">
+                <i class="fa-solid fa-star home-card-icon"></i>
+                <h4>Recensioni &#x1F5FA;</h4>
+            </div>
+        </a>
+
+        <a href="abbonamenti.html" class="home-card">
+            <img src="img/ViaggiReali_punti_forza.jpg" class="home-card-img">
+            <div class="home-card-label">
+                <i class="fa-solid fa-tag home-card-icon"></i>
+                <h4>Abbonamenti &#x1F46A;&#x200D;&#x1F467;&#x200D;&#x1F466;</h4>
+            </div>
+        </a>
+
+        <a href="Viaggi.html" class="home-card">
+            <img src="./img/trasferimento.jpeg" class="home-card-img">
+            <div class="home-card-label">
+                <i class="fa-solid fa-plane home-card-icon"></i>
+                <h4>I Viaggi &#x1F38B;</h4>
+            </div>
+        </a>
+    </div>
+
+    <div id="map"></div>
+    <div id="spazio"></div>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+
+</html>

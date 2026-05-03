@@ -475,6 +475,17 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    //mappa index//
+    var map = L.map('map').setView([45.62928126111086, 9.021469519511175], 17);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+    var marker = L.marker([45.62928126111086, 9.021469519511175]).addTo(map);
+    marker.bindPopup("<b>Sede TripMood</b><br>la nostra sede ufficiale!").openPopup();
+
+
+
     async function inviaRecensione() {
         const idUtente = localStorage.getItem("utenteId");
         if (!idUtente) {

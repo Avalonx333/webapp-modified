@@ -177,28 +177,28 @@ input::placeholder {
 }
 
 #brobro{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
 }
 
 #brobro a{
-text-decoration: none;
-color: black;
-font-weight: bolder;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: rgba(255, 255, 255, 0.8);
-    border: 1px solid black;
-      border-top-left-radius: 40px;
-      border-top-right-radius: 40px;
-      border-bottom-left-radius: 40px;
-      border-bottom-right-radius: 40px;
-      width: 100px;
-      height: 40px;
-      padding: 5px;
+  text-decoration: none;
+  color: black;
+  font-weight: bolder;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 1px solid black;
+  border-top-left-radius: 40px;
+  border-top-right-radius: 40px;
+  border-bottom-left-radius: 40px;
+  border-bottom-right-radius: 40px;
+  width: 100px;
+  height: 40px;
+  padding: 5px;
 }
 
 #rating {
@@ -425,31 +425,6 @@ footer {
   align-items: center;
 }
 
-#brobro{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 40px;
-}
-
-#brobro a{
-  text-decoration: none;
-  color: black;
-  font-weight: bolder;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: rgba(255, 255, 255, 0.8);
-  border: 1px solid black;
-  border-top-left-radius: 40px;
-  border-top-right-radius: 40px;
-  border-bottom-left-radius: 40px;
-  border-bottom-right-radius: 40px;
-  width: 100px;
-  height: 40px;
-  padding: 5px;
-}
-
 .login-link {
   font-size: 13px;
   margin: 4px 0 0;
@@ -475,35 +450,6 @@ footer {
   align-items: center;
   box-sizing: border-box;
 }
-
-#viaggi-guest{
-
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-
-}
-
-#viaggi-intro {
-
-
-  color: black;
-  font-weight: bolder;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: rgba(255, 255, 255, 0.8);
-  border: 1px solid black;
-  border-top-left-radius: 40px;
-  border-top-right-radius: 40px;
-  border-bottom-left-radius: 40px;
-  border-bottom-right-radius: 40px;
-  width: 400px;
-  height: 20px;
-  padding: 5px;
-}
-
 
 #viaggi-main {
   margin-top: 120px;
@@ -537,30 +483,30 @@ footer {
 
 #viaggi-guest{
 
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 
 }
 
 #viaggi-intro {
 
 
-    color: black;
-    font-weight: bolder;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background-color: rgba(255, 255, 255, 0.8);
-        border: 1px solid black;
-          border-top-left-radius: 40px;
-          border-top-right-radius: 40px;
-          border-bottom-left-radius: 40px;
-          border-bottom-right-radius: 40px;
-          width: 400px;
-          height: 20px;
-          padding: 5px;
+  color: black;
+  font-weight: bolder;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 1px solid black;
+  border-top-left-radius: 40px;
+  border-top-right-radius: 40px;
+  border-bottom-left-radius: 40px;
+  border-bottom-right-radius: 40px;
+  width: 400px;
+  height: 20px;
+  padding: 5px;
 }
 
 .viaggi-row {
