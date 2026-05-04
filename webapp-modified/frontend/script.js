@@ -452,6 +452,96 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     // ===============================
+// VIAGGI PIÙ AMATI – PULSANTI PRENOTA
+// ===============================
+
+    if (window.location.pathname.toLowerCase().includes("amati.html")) {
+
+        // Aggiungo il pulsante Prenota a ogni card
+        document.querySelectorAll(".amato-card").forEach(card => {
+
+            // Evita duplicazioni
+            if (card.querySelector(".btn-prenota-amato")) return;
+
+            const btn = document.createElement("button");
+            btn.className = "btn-prenota-amato";
+            btn.textContent = "Prenota ora";
+
+            btn.style.cssText = `
+            margin-top: 12px;
+            padding: 10px 14px;
+            background: #2980b9;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            width: 100%;
+        `;
+
+            card.appendChild(btn);
+
+            // CLICK → prenotazione
+            btn.addEventListener("click", async () => {
+                const idUtente = localStorage.getItem("utenteId");
+
+                if (!idUtente) {
+                    alert("Accedi prima di prenotare.");
+                    window.location.href = "accedi.html";
+                    return;
+                }
+
+                const destinazione = card.querySelector(".subpage-card-title")?.textContent.trim();
+                if (!destinazione) {
+                    alert("Errore: destinazione non trovata.");
+                    return;
+                }
+
+                // Date automatiche
+                const oggi = new Date();
+                const partenza = new Date(oggi);
+                partenza.setDate(oggi.getDate() + 20);
+                const ritorno = new Date(partenza);
+                ritorno.setDate(partenza.getDate() + 7);
+
+                const fmt = d => d.toISOString().split("T")[0];
+
+                try {
+                    const res = await fetch(`${API_BASE}/prenota`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            utenteId: idUtente,
+                            destinazione: destinazione,
+                            partenza: "Italia",
+                            albergo: "Da definire",
+                            dataAndata: fmt(partenza),
+                            dataRitorno: fmt(ritorno),
+                            adulti: 2,
+                            bambini: 0,
+                            tipo: "Viaggio più amato",
+                            stelle: 4
+                        }),
+                    });
+
+                    const data = await res.json();
+
+                    if (data.status === "ok") {
+                        alert("✅ Prenotazione confermata! Riceverai una email di conferma.");
+                        window.location.href = "Storico.html";
+                    } else {
+                        alert(data.messaggio || "Errore nella prenotazione");
+                    }
+
+                } catch (err) {
+                    console.error(err);
+                    alert("Errore di connessione");
+                }
+            });
+        });
+    }
+
+    // ===============================
     // RECENSIONI
     // ===============================
 
