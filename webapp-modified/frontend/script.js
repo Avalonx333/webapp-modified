@@ -690,7 +690,7 @@ function formattaData(data) {
 }
 
 // ===============================
-// VALIDAZIONE DESTINAZIONE
+// VALIDAZIONE DESTINAZIONE-
 // ===============================
 
 
