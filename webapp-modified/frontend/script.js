@@ -25,6 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
         linkAccedi.textContent = "Ciao, " + username;
         linkAccedi.removeAttribute("href");
 
+
         const pianoAttivo = localStorage.getItem("piano");
         if (pianoAttivo && PIANI_CONFIG[pianoAttivo]) {
             linkAccedi.style.color = PIANI_CONFIG[pianoAttivo].colore;
@@ -44,6 +45,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         if (linkMieiViaggi) linkMieiViaggi.style.display = "inline-block";
+
+        const div = document.getElementById("accesso")
+
+        if ( window.location.pathname.toLowerCase().includes("index.html")) {
+            div.style.right = "100px";
+        }
 
     } else {
         if (linkMieiViaggi) linkMieiViaggi.style.display = "none";
@@ -175,12 +182,21 @@ document.addEventListener("DOMContentLoaded", () => {
         const idUtente = localStorage.getItem("utenteId");
         const guest = document.getElementById("viaggi-guest");
         const user = document.getElementById("viaggi-user");
+        const brobro = document.getElementById("brobro");
+        const intro = document.getElementById("viaggi-intro");
+        const gridStart = document.getElementById("viaggi-grid-1")
 
         if (!idUtente) {
             if (guest) guest.style.display = "block";
+            if (brobro) brobro.style.display = "flex"
+            if (intro) intro.style.display = "flex"
+            if (gridStart) gridStart.style.display = "block"
             if (user) user.style.display = "none";
         } else {
             if (guest) guest.style.display = "none";
+            if (brobro) brobro.style.display = "none"
+            if (intro) intro.style.display = "none"
+            if (gridStart) gridStart.style.display = "none"
             if (user) user.style.display = "block";
         }
     }
@@ -628,19 +644,15 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // ===============================
-    // MAPPA INDEX (solo se presente)
-    // ===============================
 
-    if (document.getElementById("map")) {
-        var map = L.map('map').setView([45.62928126111086, 9.021469519511175], 17);
+        var map = L.map("map").setView([45.62928126111086, 9.021469519511175], 17);
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
         var marker = L.marker([45.62928126111086, 9.021469519511175]).addTo(map);
         marker.bindPopup("<b>Sede TripMood</b><br>la nostra sede ufficiale!").openPopup();
-    }
+
 
 });
 

@@ -52,7 +52,6 @@ h4 {
   border: 2px solid black;
 }
 #cs-nav {
-
   display: flex;
   align-items: center;
   gap: 15px;
@@ -60,6 +59,7 @@ h4 {
   flex-shrink: 0;
   max-width: 200px;
 }
+
 
 #auth-guest, #auth-user {
   display: flex;
@@ -150,8 +150,9 @@ input::placeholder {
 #accesso {
   position: absolute;
   top: 60px;
-  right: 10px;
+  right: 60px;
   width: 300px;
+  height: 400px;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -166,15 +167,7 @@ input::placeholder {
   border-radius: 20px;
 }
 
-#accesso h2 {
-  background-color: rgba(255, 255, 255, 0.5);
-  padding: 12px;
-  border: 1px solid black;
-  border-top-left-radius: 40px;
-  border-top-right-radius: 40px;
-  border-bottom-left-radius: 40px;
-  border-bottom-right-radius: 40px;
-}
+
 
 #brobro{
   display: flex;
