@@ -106,6 +106,13 @@ public class ApiController {
             v.setPartenza(body.getOrDefault("partenza", "Italia").toString());
             v.setAlbergo(body.getOrDefault("albergo", "Da definire").toString());
 
+            if (body.containsKey("latitudine") && body.get("latitudine") != null) {
+                try { v.setLatitudine(Double.parseDouble(body.get("latitudine").toString())); } catch (NumberFormatException ignored) {}
+            }
+            if (body.containsKey("longitudine") && body.get("longitudine") != null) {
+                try { v.setLongitudine(Double.parseDouble(body.get("longitudine").toString())); } catch (NumberFormatException ignored) {}
+            }
+
             if (body.containsKey("adulti")) {
                 v.setAdulti(Integer.parseInt(body.get("adulti").toString()));
             }

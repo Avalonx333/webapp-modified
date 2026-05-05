@@ -313,6 +313,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const fmt = d => d.toISOString().split("T")[0];
 
         try {
+            const coords = await geocodifica(destinazione);
             const res = await fetch(`${API_BASE}/prenota`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -326,7 +327,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     adulti: 2,
                     bambini: 0,
                     tipo: "Viaggio scontato",
-                    stelle: 4
+                    stelle: 4,
+                    latitudine: coords.latitudine,
+                    longitudine: coords.longitudine
                 }),
             });
 
@@ -523,6 +526,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const fmt = d => d.toISOString().split("T")[0];
 
                 try {
+                    const coords = await geocodifica(destinazione);
                     const res = await fetch(`${API_BASE}/prenota`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -536,7 +540,9 @@ document.addEventListener("DOMContentLoaded", () => {
                             adulti: 2,
                             bambini: 0,
                             tipo: "Viaggio più amato",
-                            stelle: 4
+                            stelle: 4,
+                            latitudine: coords.latitudine,
+                            longitudine: coords.longitudine
                         }),
                     });
 
@@ -645,13 +651,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-        var map = L.map("map").setView([45.62928126111086, 9.021469519511175], 17);
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        }).addTo(map);
-        var marker = L.marker([45.62928126111086, 9.021469519511175]).addTo(map);
-        marker.bindPopup("<b>Sede TripMood</b><br>la nostra sede ufficiale!").openPopup();
+    var map = L.map("map").setView([45.62928126111086, 9.021469519511175], 17);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+    var marker = L.marker([45.62928126111086, 9.021469519511175]).addTo(map);
+    marker.bindPopup("<b>Sede TripMood</b><br>la nostra sede ufficiale!").openPopup();
 
 
 });
@@ -779,10 +785,12 @@ function inizializzaMappaStorico(lista) {
     }).addTo(map);
 
     lista.forEach(v => {
-        const lat = (Math.random() * 140) - 70;
-        const lng = (Math.random() * 360) - 180;
-        L.marker([lat, lng]).addTo(map)
-            .bindPopup(`<b>${v.destinazione}</b><br>${formattaData(v.dataAndata)} – ${formattaData(v.dataRitorno)}`);
+        const lat = parseFloat(v.latitudine);
+        const lon = parseFloat(v.longitudine);
+        if (!isNaN(lat) && !isNaN(lon) && lat !== 0 && lon !== 0) {
+            L.marker([lat, lon]).addTo(map)
+                .bindPopup(`<b>${v.destinazione}</b><br>${formattaData(v.dataAndata)} – ${formattaData(v.dataRitorno)}`);
+        }
     });
 }
 
@@ -797,27 +805,46 @@ function formattaData(data) {
 
 
 
+// ===============================
+// GEOCODIFICA DESTINAZIONE (Nominatim)
+// ===============================
+async function geocodifica(destinazione) {
+    try {
+        const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(destinazione)}&format=json&limit=1`;
+        const res = await fetch(url, {
+            headers: {
+                "Accept-Language": "it",
+                "User-Agent": "TripMood-WebApp/1.0"
+            }
+        });
+        const data = await res.json();
+        if (data && data.length > 0) {
+            const lat = parseFloat(data[0].lat);
+            const lon = parseFloat(data[0].lon);
+            console.log(`[Geocodifica] ${destinazione} → lat:${lat}, lon:${lon}`);
+            return { latitudine: lat, longitudine: lon };
+        }
+        console.warn(`[Geocodifica] Nessun risultato per: ${destinazione}`);
+    } catch (e) {
+        console.warn("[Geocodifica] Errore:", e);
+    }
+    return { latitudine: null, longitudine: null };
+}
+
 async function validaDestinazione(testo, feedbackEl) {
     feedbackEl.dataset.valid = "pending";
 
     try {
-        const risposta = await fetch("https://api.anthropic.com/v1/messages", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                model: "claude-sonnet-4-20250514",
-                max_tokens: 60,
-                messages: [{
-                    role: "user",
-                    content: `Il testo "${testo}" e' il nome di un paese, citta', regione o destinazione turistica reale nel mondo? Rispondi SOLO con "SI" oppure "NO".`
-                }]
-            })
+        const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(testo)}&format=json&limit=1`;
+        const res = await fetch(url, {
+            headers: {
+                "Accept-Language": "it",
+                "User-Agent": "TripMood-WebApp/1.0"
+            }
         });
+        const data = await res.json();
 
-        const data = await risposta.json();
-        const answer = (data.content?.[0]?.text || "").trim().toUpperCase();
-
-        if (answer.startsWith("SI")) {
+        if (data && data.length > 0) {
             feedbackEl.textContent = "✅ Destinazione valida!";
             feedbackEl.style.color = "#27ae60";
             feedbackEl.dataset.valid = "true";
@@ -828,12 +855,11 @@ async function validaDestinazione(testo, feedbackEl) {
         }
 
     } catch (err) {
-        console.error("Errore validazione AI:", err);
-
-        // NON marchiamo come valida!
-        feedbackEl.textContent = "⚠️ Errore nella verifica. Riprova.";
+        console.error("Errore validazione:", err);
+        // In caso di errore di rete lasciamo passare (fail-open)
+        feedbackEl.textContent = "⚠️ Verifica non disponibile, procedi con cautela.";
         feedbackEl.style.color = "#e67e22";
-        feedbackEl.dataset.valid = "false";
+        feedbackEl.dataset.valid = "true";
     }
 }
 
@@ -935,6 +961,9 @@ window.prenotaViaggio = async function () {
         btnPrenota.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Invio in corso...';
     }
 
+    // Geocodifica automatica della destinazione
+    const coords = await geocodifica(destinazione);
+
     try {
         const res = await fetch(`${API_BASE}/prenota`, {
             method: "POST",
@@ -947,7 +976,9 @@ window.prenotaViaggio = async function () {
                 adulti,
                 bambini,
                 tipo,
-                stelle
+                stelle,
+                latitudine: coords.latitudine,
+                longitudine: coords.longitudine
             }),
         });
 
@@ -1002,12 +1033,14 @@ window.prenotaGruppo = async function (nomePacchetto) {
     const adulti = adultiMap[tipoGruppo] || 2;
 
     try {
+        const destGruppo = "Destinazione a sorpresa – " + nomePacchetto;
+        const coords = await geocodifica(destGruppo);
         const res = await fetch(`${API_BASE}/prenota`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 utenteId: idUtente,
-                destinazione: "Destinazione a sorpresa – " + nomePacchetto,
+                destinazione: destGruppo,
                 partenza: "Italia",
                 albergo: "Da definire",
                 dataAndata: fmt(partenza),
@@ -1015,7 +1048,9 @@ window.prenotaGruppo = async function (nomePacchetto) {
                 adulti: adulti,
                 bambini: 0,
                 tipo: "Gruppo – " + tipoGruppo,
-                stelle: 4
+                stelle: 4,
+                latitudine: coords.latitudine,
+                longitudine: coords.longitudine
             }),
         });
 
