@@ -22,6 +22,9 @@ public class Viaggi {
     private String partenza;
     private String albergo;
 
+    private Double latitudine;
+    private Double longitudine;
+
     // campi aggiuntivi per storico
     private Integer adulti;
     private Integer bambini;
@@ -107,4 +110,21 @@ public class Viaggi {
     public void setTipo(String tipo) {
         this.tipo = tipo;
     }
+
+    public Double getLatitudine() {
+        return latitudine;
+    }
+
+    public void setLatitudine(Double latitudine) {
+        this.latitudine = latitudine;
+    }
+
+    public Double getLongitudine() {
+        return longitudine;
+    }
+
+    public void setLongitudine(Double longitudine) {
+        this.longitudine = longitudine;
+    }
 }
+//aaa

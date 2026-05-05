@@ -8,14 +8,14 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ViaggiRepository extends JpaRepository<Viaggi, Long> {
+public interface ViaggiRepository extends JpaRepository<Viaggi, Integer> {
 
     @Query(value = """
-        SELECT v.* 
+        SELECT v.*
         FROM viaggi v
-        JOIN utenti_viaggi uv ON v.id = uv.viaggi_id
+        JOIN utenti_viaggi uv ON v.id = uv.viaggio_id
         WHERE uv.utente_id = :utenteId
     """, nativeQuery = true)
     List<Viaggi> findByUtente(@Param("utenteId") Long utenteId);
 }
-//commento
+//aaa

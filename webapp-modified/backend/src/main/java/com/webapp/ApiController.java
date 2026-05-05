@@ -67,6 +67,7 @@ public class ApiController {
             ));
         }
 
+        // Il campo piano è già incluso nell'oggetto trovato grazie al campo in Utente.java
         return ResponseEntity.ok(Map.of(
                 "status", "ok",
                 "messaggio", "Login riuscito!",
@@ -105,7 +106,13 @@ public class ApiController {
             v.setPartenza(body.getOrDefault("partenza", "Italia").toString());
             v.setAlbergo(body.getOrDefault("albergo", "Da definire").toString());
 
-            // campi aggiuntivi opzionali
+            if (body.containsKey("latitudine") && body.get("latitudine") != null) {
+                try { v.setLatitudine(Double.parseDouble(body.get("latitudine").toString())); } catch (NumberFormatException ignored) {}
+            }
+            if (body.containsKey("longitudine") && body.get("longitudine") != null) {
+                try { v.setLongitudine(Double.parseDouble(body.get("longitudine").toString())); } catch (NumberFormatException ignored) {}
+            }
+
             if (body.containsKey("adulti")) {
                 v.setAdulti(Integer.parseInt(body.get("adulti").toString()));
             }
@@ -157,7 +164,7 @@ public class ApiController {
         }
     }
 
-    // Ottenere dati utente tramite ID (per mostrare il nome nell'header)
+    // Ottenere dati utente tramite ID
     @GetMapping("/utente/{id}")
     public ResponseEntity<?> getUtente(@PathVariable Long id) {
 
@@ -173,6 +180,29 @@ public class ApiController {
         return ResponseEntity.ok(Map.of(
                 "status", "ok",
                 "utente", u
+        ));
+    }
+
+    // Aggiorna piano abbonamento utente
+    @PostMapping("/utente/{id}/piano")
+    public ResponseEntity<?> aggiornaPiano(@PathVariable Long id, @RequestBody Map<String, Object> body) {
+
+        Utente utente = utenteRepository.findById(id).orElse(null);
+        if (utente == null) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "status", "errore",
+                    "messaggio", "Utente non trovato"
+            ));
+        }
+
+        String piano = body.get("piano").toString();
+        utente.setPiano(piano);
+        utenteRepository.save(utente);
+
+        return ResponseEntity.ok(Map.of(
+                "status", "ok",
+                "messaggio", "Piano aggiornato",
+                "piano", piano
         ));
     }
 

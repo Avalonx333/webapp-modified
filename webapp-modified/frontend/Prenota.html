@@ -25,6 +25,7 @@
                 <div class="subpage-card-icon"><i class="fa-solid fa-magnifying-glass-location"></i></div>
                 <h2 class="subpage-card-title">Destinazione</h2>
                 <input type="text" id="destinazione" placeholder="Dove vuoi andare?" class="subpage-input" />
+                <span id="dest-feedback" style="font-size:13px; margin-top:6px; display:block; min-height:18px;"></span>
             </div>
             <div class="subpage-card wide-card">
                 <div class="subpage-card-icon"><i class="fa-solid fa-calendar-days"></i></div>
@@ -65,8 +66,7 @@
                     <label class="tipo-option"><input type="radio" name="tipo" value="mare" checked> 🏖 Mare</label>
                     <label class="tipo-option"><input type="radio" name="tipo" value="montagna"> 🏔 Montagna</label>
                     <label class="tipo-option"><input type="radio" name="tipo" value="citta"> 🏙 Città</label>
-                    <label class="tipo-option"><input type="radio" name="tipo" value="avventura"> 🌿
-                        Avventura</label>
+                    <label class="tipo-option"><input type="radio" name="tipo" value="avventura"> 🌿 Avventura</label>
                 </div>
             </div>
 
@@ -80,7 +80,7 @@
                     <span class="stella" data-val="4" onclick="selectStelle(4)">★</span>
                     <span class="stella" data-val="5" onclick="selectStelle(5)">★</span>
                 </div>
-                <p id="stelle-label" class="stelle-label-text">Seleziona le stelle</p>
+                <p id="stelle-label" class="stelle-label-text">3 stelle selezionate</p>
             </div>
         </div>
     </div>
