@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
-
+//controller REST di Spring Boot.
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "*")
@@ -31,7 +31,7 @@ public class ApiController {
 
     @PostMapping("/registra")
     public ResponseEntity<?> registra(@RequestBody Utente u) {
-
+//controllo esistenza utente
         if (service.usernameEsiste(u.getUsername())) {
             return ResponseEntity.status(409).body(Map.of(
                     "status", "errore",
@@ -45,7 +45,7 @@ public class ApiController {
                     "messaggio", "Email già esistente"
             ));
         }
-
+//salava utente
         Utente salvato = service.registra(u);
 
         return ResponseEntity.ok(Map.of(

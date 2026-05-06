@@ -3,7 +3,7 @@
 // =====================
 
 const API_BASE = "http://localhost:8080/api";
-
+//sconti abbonamenti
 const PIANI_CONFIG = {
     Base:    { colore: "#27ae60", sconto: 5  },
     Plus:    { colore: "#2980b9", sconto: 15 },
@@ -13,7 +13,7 @@ const PIANI_CONFIG = {
 document.addEventListener("DOMContentLoaded", () => {
 
     // ===============================
-    // HEADER LOGIN / LOGOUT
+    // testa LOGIN / LOGOUT
     // ===============================
 
     const username = localStorage.getItem("username");
